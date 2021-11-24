@@ -123,12 +123,12 @@ void render(game_window *win)
 	SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
 
 	struct polygon p;
-	build_rcpolygon(&p, 100, 100, win->sides, 100, 3.14159 / 2, 1);
+	build_rcpolygon(&p, win->sides, 100, 100, 100, 3.14159 / 2, 1);
 	draw_polygon(win->renderer, &p);
 	free_polygon(&p);
 
 	struct polygon p3;
-	build_rcpolygon(&p3, 200, 350, win->sides, 100, 3 * 3.14159 / 2, 2);
+	build_rcpolygon(&p3, win->sides, 200, 350, 100, 3 * 3.14159 / 2, 2);
 	draw_polygon(win->renderer, &p3);
 	free_polygon(&p3);
 
