@@ -122,13 +122,21 @@ void render(game_window *win)
 
 	SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
 
-	//struct reg_convex_polygon p = { 350, 350, 8, 200 };
-	//draw_rcpolygon(win->renderer, &p);
-
 	struct polygon p;
-	build_rcpolygon(&p, 350, 350, win->sides, 200, 0);
+	build_rcpolygon(&p, 100, 100, win->sides, 100, 3.14159 / 2, 1);
 	draw_polygon(win->renderer, &p);
 	free_polygon(&p);
+
+	struct polygon p3;
+	build_rcpolygon(&p3, 200, 350, win->sides, 100, 3 * 3.14159 / 2, 2);
+	draw_polygon(win->renderer, &p3);
+	free_polygon(&p3);
+
+	struct polygon p2;
+	build_rcpolygon(&p2, 500, 350, win->sides, 100, 0, 2);
+	set_polygon_angle(&p2, 3 * 3.14159 / 2);
+	draw_polygon(win->renderer, &p2);
+	free_polygon(&p2);
 
 	SDL_SetRenderDrawColor(win->renderer, 255, 255, 255, 255);
 	SDL_RenderPresent(win->renderer);

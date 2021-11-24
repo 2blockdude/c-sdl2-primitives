@@ -11,7 +11,7 @@
 struct reg_convex_polygon
 {
 	int x, y;
-	int n_points;
+	int points_c;
 	double radius;
 };
 
@@ -19,9 +19,10 @@ struct polygon
 {
 	int x, y;
 	double angle;
+	double scale;
+	int points_c;
 	SDL_Point *points;
-	SDL_Point *t_points;
-	int n_points;
+	SDL_Point *points_t;
 };
 
 struct ellipse
@@ -44,10 +45,16 @@ int draw_polygon_filled		(SDL_Renderer *renderer, const struct polygon *p);
 int draw_ellipse				(SDL_Renderer *renderer, const struct ellipse *e);
 int draw_ellipse_filled		(SDL_Renderer *renderer, const struct ellipse *e);
 
-// functions to build polygons
-int build_rcpolygon			(struct polygon *p, int x, int y, int n_points, double radius, double angle);
-int build_random_polygon	(struct polygon *p, int x, int y, int n_points, double max_radius, double min_radius, double angle);
+// build polygons
+int build_rcpolygon			(struct polygon *p, int x, int y, int points_c, double radius, double angle, double scale);
+int build_random_polygon	(struct polygon *p, int x, int y, int points_c, double max_radius, double min_radius, double angle, double scale);
 
-void free_polygon				(struct polygon *p);
+// transform polygon
+int set_polygon_pos			(struct polygon *p, int x, int y);
+int set_polygon_angle		(struct polygon *p, double angle);
+int set_polygon_scale		(struct polygon *p, double scale);
+
+// free polygon
+void free_polygon					(struct polygon *p);
 
 #endif
