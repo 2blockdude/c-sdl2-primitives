@@ -26,6 +26,8 @@ struct game_window
 	// settings
 	int width;
 	int height;
+
+	int sides;
 };
 
 int init_window(game_window *win, char *title, int width, int height)
@@ -60,6 +62,7 @@ int init_window(game_window *win, char *title, int width, int height)
 	win->mouse_down = 0;
 	win->running = 1;
 	win->pause = 0;
+	win->sides = 3;
 
 	return 0;
 }
@@ -104,7 +107,8 @@ void handle_events(game_window *win)
 				switch (win->event.key.keysym.sym)
 				{
 					case SDLK_SPACE:
-						win->pause = win->pause == 1 ? 0 : 1;
+						win->sides++;
+						//win->pause = win->pause == 1 ? 0 : 1;ddko
 						break;
 				};
 				break;
@@ -117,11 +121,14 @@ void render(game_window *win)
 	SDL_RenderClear(win->renderer);
 
 	SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
-	struct reg_convex_polygon p = { 350, 350, 8, 200 };
-	draw_rcpolygon(win->renderer, &p);
 
-	//SDL_Rect rect = { 50, 50, 10, 10 };
-	//SDL_RenderFillRect(win->renderer, &rect);
+	//struct reg_convex_polygon p = { 350, 350, 8, 200 };
+	//draw_rcpolygon(win->renderer, &p);
+
+	struct polygon p;
+	build_rcpolygon(&p, 350, 350, win->sides, 200, 0);
+	draw_polygon(win->renderer, &p);
+	free_polygon(&p);
 
 	SDL_SetRenderDrawColor(win->renderer, 255, 255, 255, 255);
 	SDL_RenderPresent(win->renderer);
