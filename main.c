@@ -133,8 +133,15 @@ void render(game_window *win)
 	free_polygon(&p3);
 
 	struct polygon p2;
-	build_rcpolygon(&p2, 500, 350, win->sides, 100, 0, 2);
-	set_polygon_angle(&p2, 3 * 3.14159 / 2);
+	SDL_Point points[3] = {
+		{ 10, 0 },
+		{ -20, 10 },
+		{ -20, -10 } };
+
+	build_polygon(&p2, points, 3, 0, 0, 0, 1);
+	set_polygon_rot(&p2, 10);
+	set_polygon_scale(&p2, 10);
+	set_polygon_pos(&p2, 500, 350);
 	draw_polygon(win->renderer, &p2);
 	free_polygon(&p2);
 

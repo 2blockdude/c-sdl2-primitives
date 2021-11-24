@@ -73,6 +73,40 @@ int draw_polygon(SDL_Renderer *renderer, const struct polygon *p)
 	return 0;
 }
 
+int build_polygon(struct polygon *p, SDL_Point *points, int points_c, int x, int y, double angle, double scale)
+{
+	if (p == NULL)
+		return -1;
+
+	if (points == NULL)
+		return -1;
+
+	if (points_c < 3)
+		return -1;
+
+	// copy stuff
+	p->x = x;
+	p->y = y;
+	p->angle = angle;
+	p->scale = scale;
+	p->points_c = points_c;
+	p->points = (SDL_Point *)malloc(sizeof(SDL_Point) * points_c);
+	p->points_t = (SDL_Point *)malloc(sizeof(SDL_Point) * points_c);
+
+	for (int i = 0; i < p->points_c; i++)
+	{
+		// set points
+		p->points[i].x = points[i].x;
+		p->points[i].y = points[i].y;
+
+		// set points transformed
+		p->points_t[i].x = p->x + (p->scale * p->points[i].x * round(cos(p->angle))) - (p->scale * p->points[i].y * round(sin(p->angle)));
+		p->points_t[i].y = p->y + (p->scale * p->points[i].x * round(sin(p->angle))) + (p->scale * p->points[i].y * round(cos(p->angle)));
+	}
+
+	return 0;
+}
+
 int build_rcpolygon(struct polygon *p, int x, int y, int points_c, double radius, double angle, double scale)
 {
 	// error checking
@@ -88,8 +122,8 @@ int build_rcpolygon(struct polygon *p, int x, int y, int points_c, double radius
 	p->angle = angle;
 	p->scale = scale;
 	p->points_c = points_c;
-	p->points = (SDL_Point *)malloc(sizeof(SDL_Point) * points_c + 1);
-	p->points_t = (SDL_Point *)malloc(sizeof(SDL_Point) * points_c + 1);
+	p->points = (SDL_Point *)malloc(sizeof(SDL_Point) * points_c);
+	p->points_t = (SDL_Point *)malloc(sizeof(SDL_Point) * points_c);
 
 	/* 
 	 * get angle for point ploting
@@ -104,7 +138,7 @@ int build_rcpolygon(struct polygon *p, int x, int y, int points_c, double radius
 	incr_angle = incr_angle / 2.0f;
 	incr_angle = PI - 2.0f * incr_angle;
 
-	for (int i = 0; i <= p->points_c; i++)
+	for (int i = 0; i < p->points_c; i++)
 	{
 		// set points
 		p->points[i].x = round(cos(i * incr_angle) * radius);
@@ -118,7 +152,25 @@ int build_rcpolygon(struct polygon *p, int x, int y, int points_c, double radius
 	return 0;
 }
 
-int set_polygon_angle(struct polygon *p, double angle)
+int set_polygon_pos(struct polygon *p, int x, int y)
+{
+	if (p == NULL)
+		return -1;
+
+	for (int i = 0; i < p->points_c; i++)
+	{
+		p->points_t[i].x = p->points_t[i].x - p->x + x;
+		p->points_t[i].y = p->points_t[i].y - p->y + y;
+	}
+	
+	// store new position
+	p->x = x;
+	p->y = y;
+
+	return 0;
+}
+
+int set_polygon_rot(struct polygon *p, double angle)
 {
 	if (p == NULL)
 		return -1;
@@ -134,8 +186,24 @@ int set_polygon_angle(struct polygon *p, double angle)
 
 	for (int i = 0; i < p->points_c; i++)
 	{
-		p->points_t[i].x = p->x + p->scale * p->points[i].x * round(cos(angle)) - p->scale * p->points[i].y * round(sin(angle));
-		p->points_t[i].y = p->y + p->scale * p->points[i].x * round(sin(angle)) + p->scale * p->points[i].y * round(cos(angle));
+		p->points_t[i].x = p->x + (p->scale * p->points[i].x * round(cos(p->angle))) - (p->scale * p->points[i].y * round(sin(p->angle)));
+		p->points_t[i].y = p->y + (p->scale * p->points[i].x * round(sin(p->angle))) + (p->scale * p->points[i].y * round(cos(p->angle)));
+	}
+
+	return 0;
+}
+
+int set_polygon_scale(struct polygon *p, double scale)
+{
+	if (p == NULL)
+		return -1;
+
+	p->scale = scale;
+
+	for (int i = 0; i < p->points_c; i++)
+	{
+		p->points_t[i].x = p->x + (p->scale * p->points[i].x * round(cos(p->angle))) - (p->scale * p->points[i].y * round(sin(p->angle)));
+		p->points_t[i].y = p->y + (p->scale * p->points[i].x * round(sin(p->angle))) + (p->scale * p->points[i].y * round(cos(p->angle)));
 	}
 
 	return 0;
