@@ -8,13 +8,6 @@
 
 #include <SDL2/SDL.h>
 
-struct reg_convex_polygon
-{
-	int x, y;
-	int points_c;
-	double radius;
-};
-
 struct polygon
 {
 	int x, y;
@@ -32,10 +25,6 @@ struct ellipse
 	int radius_x;
 	int radius_y;
 };
-
-// regular convex polygons. not sure if any good.
-int draw_rcpolygon			(SDL_Renderer *renderer, const struct reg_convex_polygon *p);
-int draw_rcpolygon_filled	(SDL_Renderer *renderer, const struct reg_convex_polygon *p);
 
 // polygons
 int draw_polygon				(SDL_Renderer *renderer, const struct polygon *p);
