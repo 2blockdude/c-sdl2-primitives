@@ -8,11 +8,16 @@
 
 #include <SDL2/SDL.h>
 
-struct regular_polygon
+struct reg_convex_polygon
 {
 	int x, y;
 	int n_sides;
 	double radius;
+};
+
+struct polygon
+{
+	SDL_Point *points;
 };
 
 struct ellipse
@@ -22,8 +27,11 @@ struct ellipse
 	int radius_y;
 };
 
-int draw_rpolygon				(SDL_Renderer *renderer, const struct regular_polygon *p);
-int draw_rpolygon_filled	(SDL_Renderer *renderer, const struct regular_polygon *p);
+int draw_rcpolygon			(SDL_Renderer *renderer, const struct reg_convex_polygon *p);
+int draw_rcpolygon_filled	(SDL_Renderer *renderer, const struct reg_convex_polygon *p);
+
+int draw_polygon				(SDL_Renderer *renderer, const struct polygon *p);
+int draw_polygon_filled		(SDL_Renderer *renderer, const struct polygon *p);
 
 int draw_ellipse				(SDL_Renderer *renderer, const struct ellipse *e);
 int draw_ellipse_filled		(SDL_Renderer *renderer, const struct ellipse *e);

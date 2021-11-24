@@ -117,8 +117,8 @@ void render(game_window *win)
 	SDL_RenderClear(win->renderer);
 
 	SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
-	struct regular_polygon p = { 350, 350, 3, 200 };
-	draw_rpolygon(win->renderer, &p);
+	struct reg_convex_polygon p = { 350, 350, 8, 200 };
+	draw_rcpolygon(win->renderer, &p);
 
 	//SDL_Rect rect = { 50, 50, 10, 10 };
 	//SDL_RenderFillRect(win->renderer, &rect);
