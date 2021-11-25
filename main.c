@@ -38,7 +38,7 @@ int init_window(game_window *win, char *title, int width, int height)
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 		return -1;
 
-	win->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, wflags);
+	win->window = SDL_CreateWindow(title, 0, 0, width, height, wflags);
 
 	if (!win->window)
 	{
@@ -123,24 +123,24 @@ void render(game_window *win)
 	SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
 
 	struct polygon p;
-	build_rcpolygon(&p, win->sides, 100, 100, 100, 0, 1);
+
+	build_reg_polygon(&p, win->sides, 100, 100, 100, 0, 1, 1);
 	draw_polygon(win->renderer, &p);
 	free_polygon(&p);
 
-	struct polygon p3;
-	build_rcpolygon(&p3, win->sides, 200, 350, 100, 3 * 3.14159 / 2, 2);
-	draw_polygon(win->renderer, &p3);
-	free_polygon(&p3);
+	build_reg_polygon(&p, win->sides, 200, 350, 100, 3 * 3.14159 / 2, 1, 2);
+	polygon_scale(&p, 2, 2);
+	draw_polygon(win->renderer, &p);
+	free_polygon(&p);
 
-	struct polygon p2;
 	SDL_Point points[3] = {
 		{ 10, 0 },
 		{ -20, 10 },
 		{ -20, -10 } };
 
-	build_polygon(&p2, points, 3, 500, 350, 10, 10);
-	draw_polygon(win->renderer, &p2);
-	free_polygon(&p2);
+	build_polygon(&p, points, 3, 500, 350, 0, 2, 10);
+	draw_polygon(win->renderer, &p);
+	free_polygon(&p);
 
 	SDL_SetRenderDrawColor(win->renderer, 255, 255, 255, 255);
 	SDL_RenderPresent(win->renderer);
@@ -157,6 +157,7 @@ int main()
 		handle_events(&win);
 		if (!win.pause)
 			render(&win);
+		SDL_Delay(1);
 	}
 
 	destroy_window(&win);
