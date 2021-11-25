@@ -22,6 +22,7 @@ struct ellipse
 {
 	int x, y;
 	double angle;
+	double scale;
 	int radius_x;
 	int radius_y;
 };

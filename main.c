@@ -123,7 +123,7 @@ void render(game_window *win)
 	SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
 
 	struct polygon p;
-	build_rcpolygon(&p, win->sides, 100, 100, 100, 3.14159 / 2, 1);
+	build_rcpolygon(&p, win->sides, 100, 100, 100, 0, 1);
 	draw_polygon(win->renderer, &p);
 	free_polygon(&p);
 
@@ -138,10 +138,7 @@ void render(game_window *win)
 		{ -20, 10 },
 		{ -20, -10 } };
 
-	build_polygon(&p2, points, 3, 0, 0, 0, 1);
-	set_polygon_rot(&p2, 10);
-	set_polygon_scale(&p2, 10);
-	set_polygon_pos(&p2, 500, 350);
+	build_polygon(&p2, points, 3, 500, 350, 10, 10);
 	draw_polygon(win->renderer, &p2);
 	free_polygon(&p2);
 

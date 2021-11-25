@@ -75,18 +75,8 @@ int build_rcpolygon(struct polygon *p, int npoints, int x, int y, double radius,
 	p->points = (SDL_Point *)malloc(sizeof(SDL_Point) * npoints);
 	p->points_t = (SDL_Point *)malloc(sizeof(SDL_Point) * npoints);
 
-	/* 
-	 * get angle for point ploting
-	 * 1) sum of angles for a polygon
-	 * 2) get the angle for each point
-	 * 3) get angle from a corner to center
-	 * 4) get the final increment angle
-	 */
-	double incr_angle;
-	incr_angle = (npoints - 2.0f) * PI;
-	incr_angle = incr_angle	/ npoints;
-	incr_angle = incr_angle / 2.0f;
-	incr_angle = PI - 2.0f * incr_angle;
+	// i am retarded
+	double incr_angle = 2.0f * PI / npoints;
 
 	for (int i = 0; i < p->npoints; i++)
 	{
