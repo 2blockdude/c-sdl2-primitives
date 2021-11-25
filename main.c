@@ -122,25 +122,25 @@ void render(game_window *win)
 
 	SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
 
-	struct polygon p;
+	struct polygon *p;
 
-	build_reg_polygon(&p, win->sides, 100, 100, 100, 0, 1, 1);
-	draw_polygon(win->renderer, &p);
-	free_polygon(&p);
+	p = create_reg_polygon(win->sides, 100, 100, 100, 0, 1, 1);
+	draw_polygon(win->renderer, p);
+	free_polygon(p);
 
-	build_reg_polygon(&p, win->sides, 200, 350, 100, 3 * 3.14159 / 2, 1, 2);
-	polygon_scale(&p, 2, 2);
-	draw_polygon(win->renderer, &p);
-	free_polygon(&p);
+	p = create_reg_polygon(win->sides, 200, 350, 100, 3 * 3.14159 / 2, 1, 2);
+	polygon_scale(p, 2, 2);
+	draw_polygon(win->renderer, p);
+	free_polygon(p);
 
 	SDL_Point points[3] = {
 		{ 10, 0 },
 		{ -20, 10 },
 		{ -20, -10 } };
 
-	build_polygon(&p, points, 3, 500, 350, 0, 2, 10);
-	draw_polygon(win->renderer, &p);
-	free_polygon(&p);
+	p = create_polygon(points, 3, 500, 350, 0, 2, 10);
+	draw_polygon(win->renderer, p);
+	free_polygon(p);
 
 	SDL_SetRenderDrawColor(win->renderer, 255, 255, 255, 255);
 	SDL_RenderPresent(win->renderer);

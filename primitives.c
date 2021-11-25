@@ -23,16 +23,25 @@ int draw_polygon(SDL_Renderer *renderer, const struct polygon *p)
 	return 0;
 }
 
-int build_polygon(struct polygon *p, SDL_Point *vectors, int nsides, int x, int y, double angle, double scale_x, double scale_y)
+int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
 {
+	if (renderer == NULL)
+		return -1;
+
 	if (p == NULL)
 		return -1;
+	return 0;
+}
 
+struct polygon *create_polygon(SDL_Point *vectors, int nsides, int x, int y, double angle, double scale_x, double scale_y)
+{
 	if (vectors == NULL)
-		return -1;
+		return NULL;
 
 	if (nsides < 3)
-		return -1;
+		return NULL;
+
+	struct polygon *p = (struct polygon *)malloc(sizeof(struct polygon));
 
 	// copy stuff
 	p->x = x;
@@ -50,22 +59,20 @@ int build_polygon(struct polygon *p, SDL_Point *vectors, int nsides, int x, int 
 		p->vectors[i].x = vectors[i].x;
 		p->vectors[i].y = vectors[i].y;
 
-		// set vectors transformed
-		p->points[i].x = p->x + (p->scale_x * p->vectors[i].x * round(cos(p->angle))) - (p->scale_y * p->vectors[i].y * round(sin(p->angle)));
-		p->points[i].y = p->y + (p->scale_x * p->vectors[i].x * round(sin(p->angle))) + (p->scale_y * p->vectors[i].y * round(cos(p->angle)));
+		// set points with angle and scale applied
+		p->points[i].x = p->x + (p->scale_x * p->vectors[i].x * round(cos(p->angle))) - (p->scale_x * p->vectors[i].y * round(sin(p->angle)));
+		p->points[i].y = p->y + (p->scale_y * p->vectors[i].x * round(sin(p->angle))) + (p->scale_y * p->vectors[i].y * round(cos(p->angle)));
 	}
 
-	return 0;
+	return p;
 }
 
-int build_reg_polygon(struct polygon *p, int nsides, int x, int y, double radius, double angle, double scale_x, double scale_y)
+struct polygon *create_reg_polygon(int nsides, int x, int y, double radius, double angle, double scale_x, double scale_y)
 {
-	// error checking
-	if (p == NULL)
-		return -1;
-
 	if (nsides < 3)
-		return -1;
+		return NULL;
+
+	struct polygon *p = (struct polygon *)malloc(sizeof(struct polygon));
 
 	// copy stuff
 	p->x = x;
@@ -87,11 +94,11 @@ int build_reg_polygon(struct polygon *p, int nsides, int x, int y, double radius
 		p->vectors[i].y = round(sin(i * incr_angle) * radius);
 
 		// set vectors transformed
-		p->points[i].x = p->x + (p->scale_x * p->vectors[i].x * round(cos(p->angle))) - (p->scale_y * p->vectors[i].y * round(sin(p->angle)));
-		p->points[i].y = p->y + (p->scale_x * p->vectors[i].x * round(sin(p->angle))) + (p->scale_y * p->vectors[i].y * round(cos(p->angle)));
+		p->points[i].x = p->x + (p->scale_x * p->vectors[i].x * round(cos(p->angle))) - (p->scale_x * p->vectors[i].y * round(sin(p->angle)));
+		p->points[i].y = p->y + (p->scale_y * p->vectors[i].x * round(sin(p->angle))) + (p->scale_y * p->vectors[i].y * round(cos(p->angle)));
 	}
 
-	return 0;
+	return p;
 }
 
 int polygon_translate(struct polygon *p, int x, int y)
@@ -124,17 +131,12 @@ int polygon_angle(struct polygon *p, double angle)
 	 * 
 	 * R = {cos(theta), -sin(theta)}
 	 *		 {sin(theta),  cos(theta)}
-	 *
-	 * 2d scaling matrix
-	 *
-	 * S = { Sx, 0 }
-	 *		 { 0, Sy }
 	 */
 
 	for (int i = 0; i < p->nsides; i++)
 	{
-		p->points[i].x = p->x + (p->scale_x * p->vectors[i].x * round(cos(p->angle))) - (p->scale_y * p->vectors[i].y * round(sin(p->angle)));
-		p->points[i].y = p->y + (p->scale_x * p->vectors[i].x * round(sin(p->angle))) + (p->scale_y * p->vectors[i].y * round(cos(p->angle)));
+		p->points[i].x = p->x + (p->scale_x * p->vectors[i].x * round(cos(p->angle))) - (p->scale_x * p->vectors[i].y * round(sin(p->angle)));
+		p->points[i].y = p->y + (p->scale_y * p->vectors[i].x * round(sin(p->angle))) + (p->scale_y * p->vectors[i].y * round(cos(p->angle)));
 	}
 
 	return 0;
@@ -144,6 +146,13 @@ int polygon_scale(struct polygon *p, double scale_x, double scale_y)
 {
 	if (p == NULL)
 		return -1;
+
+	/*
+	 * 2d scaling matrix
+	 *
+	 * S = { Sx, 0 }
+	 *		 { 0, Sy }
+	 */
 
 	for (int i = 0; i < p->nsides; i++)
 	{
@@ -164,8 +173,8 @@ int polygon_rebuild(struct polygon *p)
 
 	for (int i = 0; i < p->nsides; i++)
 	{
-		p->points[i].x = p->x + (p->scale_x * p->vectors[i].x * round(cos(p->angle))) - (p->scale_y * p->vectors[i].y * round(sin(p->angle)));
-		p->points[i].y = p->y + (p->scale_x * p->vectors[i].x * round(sin(p->angle))) + (p->scale_y * p->vectors[i].y * round(cos(p->angle)));
+		p->points[i].x = p->x + (p->scale_x * p->vectors[i].x * round(cos(p->angle))) - (p->scale_x * p->vectors[i].y * round(sin(p->angle)));
+		p->points[i].y = p->y + (p->scale_y * p->vectors[i].x * round(sin(p->angle))) + (p->scale_y * p->vectors[i].y * round(cos(p->angle)));
 	}
 
 	return 0;
@@ -175,4 +184,5 @@ void free_polygon(struct polygon *p)
 {
 	free(p->vectors);
 	free(p->points);
+	free(p);
 }

@@ -30,25 +30,25 @@ struct ellipse
 };
 
 // polygons
-int draw_polygon				(SDL_Renderer *renderer, const struct polygon *p);
-int draw_polygon_filled		(SDL_Renderer *renderer, const struct polygon *p);
+int draw_polygon								(SDL_Renderer *renderer, const struct polygon *p);
+int draw_polygon_filled						(SDL_Renderer *renderer, const struct polygon *p);
 
 // ellipse
-int draw_ellipse				(SDL_Renderer *renderer, const struct ellipse *e);
-int draw_ellipse_filled		(SDL_Renderer *renderer, const struct ellipse *e);
+int draw_ellipse								(SDL_Renderer *renderer, const struct ellipse *e);
+int draw_ellipse_filled						(SDL_Renderer *renderer, const struct ellipse *e);
 
 // build polygons
-int build_polygon				(struct polygon *p, SDL_Point *vectors, int nsides, int x, int y, double angle, double scale_x, double scale_y);
-int build_reg_polygon		(struct polygon *p, int nsides, int x, int y, double radius, double angle, double scale_x, double scale_y);
-int build_random_polygon	(struct polygon *p, int nsides, int x, int y, double max_radius, double min_radius, double angle, double scale_x, double scale_y);
+struct polygon *create_polygon			(SDL_Point *vectors, int nsides, int x, int y, double angle, double scale_x, double scale_y);
+struct polygon *create_reg_polygon		(int nsides, int x, int y, double radius, double angle, double scale_x, double scale_y);
+struct polygon *create_random_polygon	(int nsides, int x, int y, double max_radius, double min_radius, double angle, double scale_x, double scale_y);
 
 // transform polygon
-int polygon_translate		(struct polygon *p, int x, int y);
-int polygon_angle				(struct polygon *p, double angle);
-int polygon_scale				(struct polygon *p, double scale_x, double scale_y);
-int polygon_rebuild			(struct polygon *p);
+int polygon_translate						(struct polygon *p, int x, int y);
+int polygon_angle								(struct polygon *p, double angle);
+int polygon_scale								(struct polygon *p, double scale_x, double scale_y);
+int polygon_rebuild							(struct polygon *p);
 
 // free polygon
-void free_polygon				(struct polygon *p);
+void free_polygon								(struct polygon *p);
 
 #endif
