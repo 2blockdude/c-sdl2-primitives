@@ -42,70 +42,185 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
 		min_y = p->points[i].y < min_y ? p->points[i].y : min_y;
 	}
 
-	int rand_y;
-	SDL_GetMouseState(NULL, &rand_y);
+	//int y;
+	//SDL_GetMouseState(NULL, &y);
 
-	int nint = 0;
-	int intersections[1000];
-	for (int j = 0; j < p->nsides; j++)
+	for (int y = min_y; y <= max_y; y++)
 	{
-		int x1 = p->points[j].x;
-		int y1 = p->points[j].y;
-		int x2 = p->points[(j + 1) % p->nsides].x;
-		int y2 = p->points[(j + 1) % p->nsides].y;
+		int nint = 0;
+		int nodes_x[1000];
 
-		double slope;
-		double y_int;
-		int x_int;
-
-		if (x1 == x2)
+		//  Build a list of nodes.
+		int ind1;
+		int ind2;
+		for (int i = 0; i < p->nsides; i++)
 		{
-			x_int = x1;
+			int x1;
+			int y1;
+			int x2;
+			int y2;
 
-			int max_y, min_y;
-			max_y = MAX(y1, y2);
-			min_y = MIN(y1, y2);
-			if (rand_y > max_y || rand_y < min_y)
+			if (!i) {
+				ind1 = p->nsides - 1;
+				ind2 = 0;
+			} else {
+				ind1 = i - 1;
+				ind2 = i;
+			}
+			y1 = p->points[ind1].y;
+			y2 = p->points[ind2].y;
+			if (y1 < y2) {
+				x1 = p->points[ind1].x;
+				x2 = p->points[ind2].x;
+			} else if (y1 > y2) {
+				y2 = p->points[ind1].y;
+				y1 = p->points[ind2].y;
+				x2 = p->points[ind1].x;
+				x1 = p->points[ind2].x;
+			} else {
 				continue;
+			}
+			if ( ((y >= y1) && (y < y2)) || ((y == max_y) && (y > y1) && (y <= y2)) )
+			{
+				//nodes_x[nint++] = ((65536 * (y - y1)) / (y2 - y1)) * (x2 - x1) + (65536 * x1);
+
+				int x_int, y_int;
+				double slope;
+				if (x1 == x2)
+				{
+					x_int = x1;
+				}
+				else
+				{
+					slope = ((double)(y2 - y1) / (double)(x2 - x1));
+					y_int = ((double)y1 - (double)(slope * x1));
+
+					if (slope == 0)
+						continue;
+
+					x_int = ceil((double)((double)(y - y_int) / (double)slope));
+				}
+
+				nodes_x[nint++] = x_int;
+			}
+
 		}
-		else
+
+		//int j = p->nsides - 1;
+		//for (int i = 0; i < p->nsides; i++)
+		//{
+		//	if ((p->points[i].y < y && p->points[j].y >= y) ||
+		//			(p->points[j].y < y && p->points[i].y >= y))
+		//	{
+		//		//nodes_x[nint++] = p->points[i].x + (y - p->points[i].y) / (p->points[j].y - p->points[i].y) * (p->points[j].x - p->points[i].x);
+		//		int x1 = p->points[j].x;
+		//		int y1 = p->points[j].y;
+		//		int x2 = p->points[i].x;
+		//		int y2 = p->points[i].y;
+
+		//		int x_int, y_int;
+		//		double slope;
+		//		if (x1 == x2)
+		//		{
+		//			x_int = x1;
+		//		}
+		//		else
+		//		{
+		//			slope = ((double)(y2 - y1) / (double)(x2 - x1));
+		//			y_int = ((double)y1 - (double)(slope * x1));
+
+		//			if (slope == 0)
+		//				continue;
+
+		//			x_int = ceil((double)((double)(y - y_int) / (double)slope));
+		//		}
+
+		//		nodes_x[nint++] = x_int;
+		//	}
+
+		//	j = i;
+		//}
+
+		//  Sort the nodes, via a simple “Bubble” sort.
+		int i = 0;
+		while (i < nint - 1)
 		{
-			slope = (double)(y2 - y1) / (double)(x2 - x1);
-			y_int = (double)y1 - (double)(slope * x1);
-
-			if (slope == 0)
-				continue;
-
-			x_int = (double)((double)(rand_y - y_int) / (double)slope);
+			if (nodes_x[i] > nodes_x[i + 1])
+			{
+				int swap;
+				swap = nodes_x[i];
+				nodes_x[i] = nodes_x[i + 1];
+				nodes_x[i + 1] = swap;
+				if (i)
+					i--;
+			}
+			else
+			{
+				i++;
+			}
 		}
 
-		int max_x, min_x;
-		max_x = MAX(x1, x2);
-		min_x = MIN(x1, x2);
+		//for (int j = 0; j < p->nsides; j++)
+		//{
+		//	int x1 = p->points[j].x;
+		//	int y1 = p->points[j].y;
+		//	int x2 = p->points[(j + 1) % p->nsides].x;
+		//	int y2 = p->points[(j + 1) % p->nsides].y;
 
-		if ((x_int < max_x && x_int > min_x) || x1 == x2 || rand_y == y1 || rand_y == y2)
-			intersections[nint++] = x_int;
+		//	double slope;
+		//	double y_int;
+		//	int x_int;
+
+		//	if (x1 == x2)
+		//	{
+		//		x_int = x1;
+		//	}
+		//	else
+		//	{
+		//		slope = (double)(y2 - y1) / (double)(x2 - x1);
+		//		y_int = (double)y1 - (double)(slope * x1);
+
+		//		if (slope == 0)
+		//			continue;
+
+		//		x_int = ((double)((double)(y - y_int) / (double)slope));
+		//	}
+
+		//	int max_x, min_x;
+		//	max_x = MAX(x1, x2);
+		//	min_x = MIN(x1, x2);
+
+		//	int max_y, min_y;
+		//	max_y = MAX(y1, y2);
+		//	min_y = MIN(y1, y2);
+
+		//	if (x_int <= max_x && x_int >= min_x &&
+		//			intersections[nint - 1] != x_int &&
+		//			y >= min_y && y <= max_y)
+		//		nodes_x[nint++] = x_int;
+		//}
+
+		if (nint % 2 == 0)
+		{
+			for (int k = 0; k < nint; k += 2)
+			{
+				SDL_RenderDrawLine(renderer, nodes_x[k], y, nodes_x[k + 1], y);
+
+				//struct polygon *p;
+				//p = create_reg_polygon(50, nodes_x[k], y, 10, 0, 1, 1);
+				//draw_polygon(renderer, p);
+				//free_polygon(p);
+
+				//p = create_reg_polygon(50, nodes_x[k + 1], y, 10, 0, 1, 1);
+				//draw_polygon(renderer, p);
+				//free_polygon(p);
+			}
+		}
+		printf("%d\n", nint);
 	}
 
-	if (nint % 2 == 0)
-	{
-		for (int k = 0; k < nint; k += 2)
-		{
-			SDL_RenderDrawLine(renderer, intersections[k], rand_y, intersections[k + 1], rand_y);
-
-			struct polygon *p;
-			p = create_reg_polygon(50, intersections[k], rand_y, 10, 0, 1, 1);
-			draw_polygon(renderer, p);
-			free_polygon(p);
-
-			p = create_reg_polygon(50, intersections[k + 1], rand_y, 10, 0, 1, 1);
-			draw_polygon(renderer, p);
-			free_polygon(p);
-		}
-	}
-
-	printf("%d\n", nint);
-
+	//if (rand_y > max_y || rand_y < min_y)
+	//	continue;
 
 
 	// intersections for x only
