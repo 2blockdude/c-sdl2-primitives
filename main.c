@@ -28,6 +28,7 @@ struct game_window
 	int height;
 
 	int sides;
+	float angle;
 };
 
 int init_window(game_window *win, char *title, int width, int height)
@@ -63,6 +64,7 @@ int init_window(game_window *win, char *title, int width, int height)
 	win->running = 1;
 	win->pause = 0;
 	win->sides = 3;
+	win->angle = 0;
 
 	return 0;
 }
@@ -108,16 +110,22 @@ void handle_events(game_window *win)
 				{
 					case SDLK_SPACE:
 						win->sides = 3;
-						//win->sides++;
-						//win->pause = win->pause == 1 ? 0 : 1;ddko
 						break;
-					case SDLK_w:
+					case SDLK_UP:
 						win->sides++;
 						break;
 
-					case SDLK_s:
+					case SDLK_DOWN:
 						if (!(win->sides == 3))
 							win->sides--;
+						break;
+
+					case SDLK_LEFT:
+						win->angle -= 3.14159f / 30.0f;
+						break;
+
+					case SDLK_RIGHT:
+						win->angle += 3.14159f / 30.0f;
 						break;
 				};
 				break;
@@ -131,43 +139,31 @@ void render(game_window *win)
 
 	SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
 
-	struct polygon *p;
+	struct fpolygon *p;
+	p = create_rfpolygon(win->sides, 350, 350, 100, win->angle);
+	draw_fpolygon(win->renderer, p);
+	draw_fpolygon_filled(win->renderer, p);
+	free_fpolygon(p);
 
-	//p = create_reg_polygon(win->sides, 100, 100, 100, 0, 1, 1);
-	//draw_polygon(win->renderer, p);
-	//free_polygon(p);
+	p = create_rfpolygon(win->sides, 100, 100, 100, win->angle);
+	draw_fpolygon(win->renderer, p);
+	draw_fpolygon_filled(win->renderer, p);
+	free_fpolygon(p);
 
-	p = create_reg_polygon(win->sides, 350 / 3, 350 / 3, 100, 3 * 3.14159 / 2, 1, 1);
-	SDL_RenderSetScale(win->renderer, 3, 3);
-	draw_polygon(win->renderer, p);
-	draw_polygon_filled(win->renderer, p);
-	free_polygon(p);
-	SDL_RenderSetScale(win->renderer, 1, 1);
+	p = create_rfpolygon(win->sides, 600, 100, 100, win->angle);
+	draw_fpolygon(win->renderer, p);
+	draw_fpolygon_filled(win->renderer, p);
+	free_fpolygon(p);
 
-	//SDL_Point points[6] = {
-	//	{ 20, 0 },
-	//	{ -10, -10 },
-	//	{ -20, 50 },
-	//	{ -2, 1 },
-	//	{ 23, 42 },
-	//	{ -10, 10 } };
+	p = create_rfpolygon(win->sides, 600, 600, 100, win->angle);
+	draw_fpolygon(win->renderer, p);
+	draw_fpolygon_filled(win->renderer, p);
+	free_fpolygon(p);
 
-	//p = create_polygon(points, 6, 350, 350, 0, 2, 2);
-	//draw_polygon(win->renderer, p);
-	//draw_polygon_filled(win->renderer, p);
-
-	//p->x = 100;
-	//p->y = 100;
-	//p->scale_x = 3;
-	//p->scale_y = 3;
-	//polygon_rebuild(p);
-	//draw_polygon(win->renderer, p);
-	//free_polygon(p);
-
-	//p = create_reg_polygon(3, 200, 350, 10, 3.14159 / 2, 5, 5);
-	//draw_polygon(win->renderer, p);
-	//draw_polygon_filled(win->renderer, p);
-	//free_polygon(p);
+	p = create_rfpolygon(win->sides, 100, 600, 100, win->angle);
+	draw_fpolygon(win->renderer, p);
+	draw_fpolygon_filled(win->renderer, p);
+	free_fpolygon(p);
 
 	SDL_SetRenderDrawColor(win->renderer, 255, 255, 255, 255);
 	SDL_RenderPresent(win->renderer);
@@ -184,7 +180,7 @@ int main()
 		handle_events(&win);
 		if (!win.pause)
 			render(&win);
-		SDL_Delay(10);
+		win.angle += 0.001f;
 	}
 
 	destroy_window(&win);
