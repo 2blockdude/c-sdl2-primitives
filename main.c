@@ -107,8 +107,17 @@ void handle_events(game_window *win)
 				switch (win->event.key.keysym.sym)
 				{
 					case SDLK_SPACE:
-						win->sides++;
+						win->sides = 3;
+						//win->sides++;
 						//win->pause = win->pause == 1 ? 0 : 1;ddko
+						break;
+					case SDLK_w:
+						win->sides++;
+						break;
+
+					case SDLK_s:
+						if (!(win->sides == 3))
+							win->sides--;
 						break;
 				};
 				break;
@@ -128,18 +137,22 @@ void render(game_window *win)
 	//draw_polygon(win->renderer, p);
 	//free_polygon(p);
 
-	p = create_reg_polygon(win->sides, 350, 350, 100, 3 * 3.14159 / 2, 1, 2);
-	polygon_scale(p, 2, 2);
+	p = create_reg_polygon(win->sides, 350 / 3, 350 / 3, 100, 3 * 3.14159 / 2, 1, 1);
+	SDL_RenderSetScale(win->renderer, 3, 3);
 	draw_polygon(win->renderer, p);
 	draw_polygon_filled(win->renderer, p);
 	free_polygon(p);
+	SDL_RenderSetScale(win->renderer, 1, 1);
 
-	//SDL_Point points[3] = {
+	//SDL_Point points[6] = {
 	//	{ 20, 0 },
 	//	{ -10, -10 },
+	//	{ -20, 50 },
+	//	{ -2, 1 },
+	//	{ 23, 42 },
 	//	{ -10, 10 } };
 
-	//p = create_polygon(points, 3, 350, 350, 3.14159 / 3, 10, 10);
+	//p = create_polygon(points, 6, 350, 350, 0, 2, 2);
 	//draw_polygon(win->renderer, p);
 	//draw_polygon_filled(win->renderer, p);
 

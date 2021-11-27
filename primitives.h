@@ -44,8 +44,8 @@ struct polygon *create_random_polygon	(int nsides, int x, int y, float max_radiu
 
 // transform polygon
 int polygon_translate						(struct polygon *p, int x, int y);
-int polygon_angle								(struct polygon *p, float angle);
-int polygon_scale								(struct polygon *p, float scale_x, float scale_y);
+int polygon_set_angle						(struct polygon *p, float angle);
+int polygon_set_scale						(struct polygon *p, float scale_x, float scale_y);
 int polygon_rebuild							(struct polygon *p);
 
 // free polygon

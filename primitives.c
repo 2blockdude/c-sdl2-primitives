@@ -60,13 +60,15 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
 			int x2;
 			int y2;
 
-			if (!i) {
+			// get corrent point at i == 0
+			if (i == 0) {
 				ind1 = p->nsides - 1;
 				ind2 = 0;
 			} else {
 				ind1 = i - 1;
 				ind2 = i;
 			}
+
 			y1 = p->points[ind1].y;
 			y2 = p->points[ind2].y;
 			if (y1 < y2) {
@@ -84,21 +86,20 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
 			{
 				//nodes_x[nint++] = ((65536 * (y - y1)) / (y2 - y1)) * (x2 - x1) + (65536 * x1);
 
-				int x_int, y_int;
-				double slope;
+				float x_int, y_int;
+				float slope;
+				int rise, run;
 				if (x1 == x2)
 				{
 					x_int = x1;
 				}
 				else
 				{
-					slope = ((double)(y2 - y1) / (double)(x2 - x1));
-					y_int = ((double)y1 - (double)(slope * x1));
-
-					if (slope == 0)
-						continue;
-
-					x_int = ceil((double)((double)(y - y_int) / (double)slope));
+					rise = y2 - y1;
+					run = x2 - x1;
+					slope = (float)rise / (float)run;
+					y_int = (float)y1 - ((float)slope * (float)x1);
+					x_int = ((float)y - (float)y_int) / (float)slope;
 				}
 
 				nodes_x[nint++] = x_int;
@@ -118,7 +119,7 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
 		//		int x2 = p->points[i].x;
 		//		int y2 = p->points[i].y;
 
-		//		int x_int, y_int;
+		//		float x_int, y_int;
 		//		double slope;
 		//		if (x1 == x2)
 		//		{
@@ -126,13 +127,13 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
 		//		}
 		//		else
 		//		{
-		//			slope = ((double)(y2 - y1) / (double)(x2 - x1));
-		//			y_int = ((double)y1 - (double)(slope * x1));
+		//			slope = ((float)(y2 - y1) / (float)(x2 - x1));
+		//			y_int = ((float)y1 - (float)(slope * x1));
 
 		//			if (slope == 0)
 		//				continue;
 
-		//			x_int = ceil((double)((double)(y - y_int) / (double)slope));
+		//			x_int = ((float)((float)(y - y_int) / (float)slope));
 		//		}
 
 		//		nodes_x[nint++] = x_int;
@@ -141,7 +142,7 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
 		//	j = i;
 		//}
 
-		//  Sort the nodes, via a simple “Bubble” sort.
+		//  Sort the nodes.
 		int i = 0;
 		while (i < nint - 1)
 		{
@@ -160,46 +161,6 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
 			}
 		}
 
-		//for (int j = 0; j < p->nsides; j++)
-		//{
-		//	int x1 = p->points[j].x;
-		//	int y1 = p->points[j].y;
-		//	int x2 = p->points[(j + 1) % p->nsides].x;
-		//	int y2 = p->points[(j + 1) % p->nsides].y;
-
-		//	double slope;
-		//	double y_int;
-		//	int x_int;
-
-		//	if (x1 == x2)
-		//	{
-		//		x_int = x1;
-		//	}
-		//	else
-		//	{
-		//		slope = (double)(y2 - y1) / (double)(x2 - x1);
-		//		y_int = (double)y1 - (double)(slope * x1);
-
-		//		if (slope == 0)
-		//			continue;
-
-		//		x_int = ((double)((double)(y - y_int) / (double)slope));
-		//	}
-
-		//	int max_x, min_x;
-		//	max_x = MAX(x1, x2);
-		//	min_x = MIN(x1, x2);
-
-		//	int max_y, min_y;
-		//	max_y = MAX(y1, y2);
-		//	min_y = MIN(y1, y2);
-
-		//	if (x_int <= max_x && x_int >= min_x &&
-		//			intersections[nint - 1] != x_int &&
-		//			y >= min_y && y <= max_y)
-		//		nodes_x[nint++] = x_int;
-		//}
-
 		if (nint % 2 == 0)
 		{
 			for (int k = 0; k < nint; k += 2)
@@ -216,70 +177,7 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
 				//free_polygon(p);
 			}
 		}
-		printf("%d\n", nint);
 	}
-
-	//if (rand_y > max_y || rand_y < min_y)
-	//	continue;
-
-
-	// intersections for x only
-	//int *intersections = (int *)calloc(2000, sizeof(int));
-	//for (int i = min_y; i <= max_y; i++)
-	//{
-	//	// number of intersections
-	//	int nint = 0;
-
-	//	int j;
-	//	for (j = 0; j < p->nsides; j++)
-	//	{
-	//		int x1 = p->points[j].x;
-	//		int y1 = p->points[j].y;
-	//		int x2 = p->points[(j + 1) % p->nsides].x;
-	//		int y2 = p->points[(j + 1) % p->nsides].y;
-
-	//		double slope;
-	//		double y_int;
-	//		int x_int;
-
-	//		if (x1 == x2)
-	//		{
-	//			x_int = x1;
-	//		}
-	//		else
-	//		{
-	//			// slop and y intersect
-	//			slope = (double)(y2 - y1) / (double)(x2 - x1);
-	//			y_int = (double)y1 - (double)(slope * x1);
-
-	//			if (slope == 0)
-	//				continue;
-
-	//			x_int = (double)((double)(i - y_int) / (double)slope);
-	//		}
-
-	//		int max, min;
-	//		max = MAX(x1, x2);
-	//		min = MIN(x1, x2);
-	//		if (x_int < max && x_int > min)
-	//		{
-	//			intersections[nint++] = x_int;
-	//		}
-	//	}
-
-	//	printf("intersections: %d\n", nint);
-	//	printf("calculations : %d\n", j);
-	//	printf("current line : %d\n", i);
-
-	//	if (nint % 2 == 0)
-	//	{
-	//		for (int k = 0; k < nint; k += 2)
-	//		{
-	//			SDL_RenderDrawLine(renderer, intersections[k], i, intersections[k + 1], i);
-	//		}
-	//	}
-	//}
-	//free(intersections);
 
 	return 0;
 }
@@ -370,7 +268,7 @@ int polygon_translate(struct polygon *p, int x, int y)
 	return 0;
 }
 
-int polygon_angle(struct polygon *p, float angle)
+int polygon_set_angle(struct polygon *p, float angle)
 {
 	if (p == NULL)
 		return -1;
@@ -393,7 +291,7 @@ int polygon_angle(struct polygon *p, float angle)
 	return 0;
 }
 
-int polygon_scale(struct polygon *p, float scale_x, float scale_y)
+int polygon_set_scale(struct polygon *p, float scale_x, float scale_y)
 {
 	if (p == NULL)
 		return -1;
