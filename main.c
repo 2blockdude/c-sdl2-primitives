@@ -18,6 +18,8 @@ struct game_window
    char running;
    char pause;
    char mouse_down;
+   char left_down;
+   char right_down;
 
    // stuff
    int mouse_pos_x;
@@ -29,6 +31,8 @@ struct game_window
 
    int sides;
    float angle;
+
+   double delta;
 };
 
 int init_window(game_window *win, char *title, int width, int height)
@@ -65,6 +69,9 @@ int init_window(game_window *win, char *title, int width, int height)
    win->pause = 0;
    win->sides = 3;
    win->angle = 0;
+   win->delta = 0;
+   win->left_down = 0;
+   win->right_down = 0;
 
    return 0;
 }
@@ -116,16 +123,29 @@ void handle_events(game_window *win)
                   break;
 
                case SDLK_DOWN:
-                  if (!(win->sides == 3))
+                  if (win->sides != 3)
                      win->sides--;
                   break;
 
                case SDLK_LEFT:
-                  win->angle -= 3.14159f / 30.0f;
+                  win->left_down = 1;
                   break;
 
                case SDLK_RIGHT:
-                  win->angle += 3.14159f / 30.0f;
+                  win->right_down = 1;
+                  break;
+            };
+            break;
+
+         case SDL_KEYUP:
+            switch (win->event.key.keysym.sym)
+            {
+               case SDLK_LEFT:
+                  win->left_down = 0;
+                  break;
+
+               case SDLK_RIGHT:
+                  win->right_down = 0;
                   break;
             };
             break;
@@ -144,8 +164,8 @@ void render(game_window *win)
    fp = create_rfpolygon(win->sides, 350, 350, 100, win->angle);
 
    p = create_rpolygon(win->sides, 350, 350, 100, win->angle);
-   draw_polygon(win->renderer, p);
-   draw_polygon_filled(win->renderer, p);
+   draw_fpolygon(win->renderer, fp);
+   draw_fpolygon_filled(win->renderer, fp);
    free_polygon(p);
 
    fpolygon_translate(fp, 100, 100);
@@ -177,11 +197,26 @@ int main()
 
    while (win.running)
    {
+
+      if (win.left_down)
+         win.angle -= 5.0f * win.delta;
+
+      if (win.right_down)
+         win.angle += 5.0f * win.delta;
+
+      unsigned int start, end;
+
+      start = SDL_GetTicks();
+
       handle_events(&win);
       if (!win.pause)
          render(&win);
-      //win.angle += 0.03f;
-      SDL_Delay(10);
+
+      SDL_Delay((1000.0f / 60.0f) - (SDL_GetTicks() - start));
+
+      end = SDL_GetTicks();
+
+      win.delta = (float)(end - start) / 1000.0f;
    }
 
    destroy_window(&win);
