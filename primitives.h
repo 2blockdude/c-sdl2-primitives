@@ -10,32 +10,32 @@
 
 struct polygon
 {
-	int x, y;
-	float angle;
-	int nsides;
-	SDL_FPoint scale;
-	SDL_Point *vectors;
-	SDL_Point *points;
+   int x, y;
+   float angle;
+   int nsides;
+   SDL_FPoint scale;
+   SDL_Point *vectors;
+   SDL_Point *points;
 };
 
 struct fpolygon
 {
-	float x, y;
-	float angle;
-	int nsides;
-	SDL_FPoint scale;
-	SDL_FPoint *vectors;
-	SDL_FPoint *points;
+   float x, y;
+   float angle;
+   int nsides;
+   SDL_FPoint scale;
+   SDL_FPoint *vectors;
+   SDL_FPoint *points;
 };
 
 struct ellipse
 {
-	int x, y;
-	float angle;
-	float scale_x;
-	float scale_y;
-	int radius_x;
-	int radius_y;
+   int x, y;
+   float angle;
+   float scale_x;
+   float scale_y;
+   int radius_x;
+   int radius_y;
 };
 
 // polygons
