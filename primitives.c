@@ -1,8 +1,6 @@
 #include <math.h>
 #include "primitives.h"
 
-#include <stdio.h>
-
 #define PI 3.1415926535897932384626433832795
 #define MAX(a, b) (a > b) ? a : b
 #define MIN(a, b) (a < b) ? a : b
@@ -159,7 +157,7 @@ struct polygon *create_polygon(SDL_Point *vectors, int nsides, int x, int y, flo
 }
 
 // create regular concave polygon defined by radius and number of sides
-struct polygon *create_rpolygon(int nsides, int x, int y, float radius, float angle)
+struct polygon *create_reg_polygon(int nsides, int x, int y, float radius, float angle)
 {
    if (nsides < 3)
       return NULL;
@@ -193,7 +191,7 @@ struct polygon *create_rpolygon(int nsides, int x, int y, float radius, float an
    return p;
 }
 
-struct polygon *create_polygon_rand(int nsides, int x, int y, float max_radius, float min_radius, float angle_offset, float angle)
+struct polygon *create_rand_polygon(int nsides, int x, int y, float max_radius, float min_radius, float angle_offset, float angle)
 {
    if (nsides < 3)
       return NULL;
@@ -216,8 +214,8 @@ struct polygon *create_polygon_rand(int nsides, int x, int y, float max_radius, 
    for (int i = 0; i < p->nsides; i++)
    {
       // set random stuff
-      float radius = (float)((double)rand() / (double)(RAND_MAX / (max_radius - min_radius))) + min_radius;
-      float rangle = (float)((double)rand() / (double)(RAND_MAX / ((((i + 1) * incr_angle) - i * incr_angle) * angle_offset))) + i * incr_angle;
+      float radius = (float)((double)rand() * (double)((max_radius - min_radius) / RAND_MAX)) + min_radius;
+      float rangle = (float)((double)rand() * (double)(((((i + 1) * incr_angle) - i * incr_angle) * angle_offset) / RAND_MAX)) + i * incr_angle;
 
       // set vectors
       p->vectors[i].x = round(cos(rangle) * radius);
@@ -457,7 +455,7 @@ struct fpolygon *create_fpolygon(SDL_FPoint *vectors, int nsides, float x, float
    return p;
 }
 
-struct fpolygon *create_rfpolygon(int nsides, float x, float y, float radius, float angle)
+struct fpolygon *create_reg_fpolygon(int nsides, float x, float y, float radius, float angle)
 {
    if (nsides < 3)
       return NULL;
@@ -491,7 +489,7 @@ struct fpolygon *create_rfpolygon(int nsides, float x, float y, float radius, fl
    return p;
 }
 
-struct fpolygon *create_fpolygon_rand(int nsides, float x, float y, float max_radius, float min_radius, float angle_offset, float angle)
+struct fpolygon *create_rand_fpolygon(int nsides, float x, float y, float max_radius, float min_radius, float angle_offset, float angle)
 {
    if (nsides < 3)
       return NULL;
@@ -514,8 +512,8 @@ struct fpolygon *create_fpolygon_rand(int nsides, float x, float y, float max_ra
    for (int i = 0; i < p->nsides; i++)
    {
       // set vectors
-      float radius = (float)((double)rand() / (double)(RAND_MAX / (max_radius - min_radius))) + min_radius;
-      float rangle = (float)((double)rand() / (double)(RAND_MAX / ((((i + 1) * incr_angle) - i * incr_angle) * angle_offset))) + i * incr_angle;
+      float radius = (float)((double)rand() * (double)((max_radius - min_radius) / RAND_MAX)) + min_radius;
+      float rangle = (float)((double)rand() * (double)(((((i + 1) * incr_angle) - i * incr_angle) * angle_offset) / RAND_MAX)) + i * incr_angle;
 
       p->vectors[i].x = (float)(cos(rangle) * radius);
       p->vectors[i].y = (float)(sin(rangle) * radius);

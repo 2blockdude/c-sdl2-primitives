@@ -169,7 +169,7 @@ void render(game_window *win)
    struct fpolygon *fp;
 
    srand(win->seed);
-   fp = create_fpolygon_rand(win->sides, 350, 350, 50, 10, 100, win->angle);
+   fp = create_rand_fpolygon(win->sides, 350, 350, 100, 50, 1, win->angle);
    draw_fpolygon(win->renderer, fp);
    draw_fpolygon_filled(win->renderer, fp);
 
@@ -217,7 +217,7 @@ int main()
       if (!win.pause)
          render(&win);
 
-      SDL_Delay((1000.0f / 60.0f) - (SDL_GetTicks() - start));
+      //SDL_Delay((1000.0f / 60.0f) - (SDL_GetTicks() - start));
 
       end = SDL_GetTicks();
 
