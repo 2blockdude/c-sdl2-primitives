@@ -45,7 +45,7 @@ int draw_polygon_filled						(SDL_Renderer *renderer, const struct polygon *p);
 // build polygons
 struct polygon *create_polygon			(SDL_Point *vectors, int nsides, int x, int y, float angle);
 struct polygon *create_rpolygon			(int nsides, int x, int y, float radius, float angle);
-struct polygon *create_polygon_rand		(int nsides, int x, int y, float max_radius, float min_radius, float angle);
+struct polygon *create_polygon_rand		(int nsides, int x, int y, float max_radius, float min_radius, float angle_offset, float angle);
 
 // transform polygon
 int polygon_translate						(struct polygon *p, int x, int y);
@@ -64,7 +64,7 @@ int draw_fpolygon_filled					(SDL_Renderer *renderer, const struct fpolygon *p);
 // build float polygons
 struct fpolygon *create_fpolygon			(SDL_FPoint *vectors, int nsides, float x, float y, float angle);
 struct fpolygon *create_rfpolygon		(int nsides, float x, float y, float radius, float angle);
-struct fpolygon *create_fpolygon_rand	(int nsides, float x, float y, float max_radius, float min_radius, float angle);
+struct fpolygon *create_fpolygon_rand	(int nsides, float x, float y, float max_radius, float min_radius, float angle_offset, float angle);
 
 // transform float polygon
 int fpolygon_translate						(struct fpolygon *p, float x, float y);

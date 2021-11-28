@@ -54,10 +54,12 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
       min_y = p->points[i].y < min_y ? p->points[i].y : min_y;
    }
 
+   int nint;
+   float nodes_x[p->nsides];
+
    for (int y = min_y; y <= max_y; y++)
    {
-      int nint = 0;
-      float nodes_x[1000];
+      nint = 0;
 
       //  Build a list of nodes.
       int ind1;
@@ -94,7 +96,7 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
          if ( ((y >= y1) && (y < y2)) || ((y == max_y) && (y > y1) && (y <= y2)) )
          {
             // modified point slope form to isolate x. note everything needs to be a float for this to work
-            nodes_x[nint++] = (float)(y - y1) * ((float)(x2 - x1) / (float)(y2 - y1)) + (float)x1;
+            nodes_x[nint++] = (float)(y - y1) * (float)(x2 - x1) / (float)(y2 - y1) + (float)x1;
          }
 
       }
@@ -106,29 +108,6 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
       //			(p->points[j].y < y && p->points[i].y >= y))
       //	{
       //		//nodes_x[nint++] = p->points[i].x + (y - p->points[i].y) / (p->points[j].y - p->points[i].y) * (p->points[j].x - p->points[i].x);
-      //		int x1 = p->points[j].x;
-      //		int y1 = p->points[j].y;
-      //		int x2 = p->points[i].x;
-      //		int y2 = p->points[i].y;
-
-      //		float x_int, y_int;
-      //		double slope;
-      //		if (x1 == x2)
-      //		{
-      //			x_int = x1;
-      //		}
-      //		else
-      //		{
-      //			slope = ((float)(y2 - y1) / (float)(x2 - x1));
-      //			y_int = ((float)y1 - (float)(slope * x1));
-
-      //			if (slope == 0)
-      //				continue;
-
-      //			x_int = ((float)((float)(y - y_int) / (float)slope));
-      //		}
-
-      //		nodes_x[nint++] = x_int;
       //	}
 
       //	j = i;
@@ -209,6 +188,44 @@ struct polygon *create_rpolygon(int nsides, int x, int y, float radius, float an
       // set vectors transformed
       p->points[i].x = round(p->x + (p->scale.x * p->vectors[i].x * cos(p->angle)) - (p->scale.x * p->vectors[i].y * sin(p->angle)));
       p->points[i].y = round(p->y + (p->scale.y * p->vectors[i].x * sin(p->angle)) + (p->scale.y * p->vectors[i].y * cos(p->angle)));
+   }
+
+   return p;
+}
+
+struct polygon *create_polygon_rand(int nsides, int x, int y, float max_radius, float min_radius, float angle_offset, float angle)
+{
+   if (nsides < 3)
+      return NULL;
+
+   struct polygon *p = (struct polygon *)malloc(sizeof(struct polygon));
+
+   // copy stuff
+   p->x = x;
+   p->y = y;
+   p->angle = angle;
+   p->scale.x = 1;
+   p->scale.y = 1;
+   p->nsides = nsides;
+   p->vectors = (SDL_Point *)malloc(sizeof(SDL_Point) * nsides);
+   p->points = (SDL_Point *)malloc(sizeof(SDL_Point) * nsides);
+
+   // i am retarded
+   float incr_angle = 2.0f * PI / nsides;
+
+   for (int i = 0; i < p->nsides; i++)
+   {
+      // set random stuff
+      float radius = (float)((double)rand() / (double)(RAND_MAX / (max_radius - min_radius))) + min_radius;
+      float rangle = (float)((double)rand() / (double)(RAND_MAX / ((((i + 1) * incr_angle) - i * incr_angle) * angle_offset))) + i * incr_angle;
+
+      // set vectors
+      p->vectors[i].x = round(cos(rangle) * radius);
+      p->vectors[i].y = round(sin(rangle) * radius);
+
+      // set vectors transformed
+      p->points[i].x = round(cos(rangle + p->angle) * radius + p->x);
+      p->points[i].y = round(sin(rangle + p->angle) * radius + p->y);
    }
 
    return p;
@@ -350,13 +367,12 @@ int draw_fpolygon_filled(SDL_Renderer *renderer, const struct fpolygon *p)
       min_y = p->points[i].y < min_y ? p->points[i].y : min_y;
    }
 
-   //int y;
-   //SDL_GetMouseState(NULL, &y);
+   int nint;
+   float nodes_x[p->nsides];
 
    for (int y = min_y; y <= max_y; y++)
    {
-      int nint = 0;
-      float nodes_x[1000];
+      nint = 0;
 
       //  Build a list of nodes.
       int ind1;
@@ -368,7 +384,7 @@ int draw_fpolygon_filled(SDL_Renderer *renderer, const struct fpolygon *p)
          float x2;
          float y2;
 
-         // get corrent point at i == 0
+         // get current point at i == 0
          if (i == 0) {
             ind1 = p->nsides - 1;
             ind2 = 0;
@@ -392,7 +408,7 @@ int draw_fpolygon_filled(SDL_Renderer *renderer, const struct fpolygon *p)
          }
          if ( ((y >= y1) && (y < y2)) || ((y == max_y) && (y > y1) && (y <= y2)) )
          {
-            nodes_x[nint++] = (y - y1) * ((x2 - x1) / (y2 - y1)) + x1;
+            nodes_x[nint++] = (y - y1) * (x2 - x1) / (y2 - y1) + x1;
          }
 
       }
@@ -470,6 +486,43 @@ struct fpolygon *create_rfpolygon(int nsides, float x, float y, float radius, fl
       // set vectors transformed
       p->points[i].x = (float)(p->x + (p->scale.x * p->vectors[i].x * cos(p->angle)) - (p->scale.x * p->vectors[i].y * sin(p->angle)));
       p->points[i].y = (float)(p->y + (p->scale.y * p->vectors[i].x * sin(p->angle)) + (p->scale.y * p->vectors[i].y * cos(p->angle)));
+   }
+
+   return p;
+}
+
+struct fpolygon *create_fpolygon_rand(int nsides, float x, float y, float max_radius, float min_radius, float angle_offset, float angle)
+{
+   if (nsides < 3)
+      return NULL;
+
+   struct fpolygon *p = (struct fpolygon *)malloc(sizeof(struct fpolygon));
+
+   // copy stuff
+   p->x = x;
+   p->y = y;
+   p->angle = angle;
+   p->scale.x = 1;
+   p->scale.y = 1;
+   p->nsides = nsides;
+   p->vectors = (SDL_FPoint *)malloc(sizeof(SDL_FPoint) * nsides);
+   p->points = (SDL_FPoint *)malloc(sizeof(SDL_FPoint) * nsides);
+
+   // i am retarded
+   float incr_angle = 2.0f * PI / nsides;
+
+   for (int i = 0; i < p->nsides; i++)
+   {
+      // set vectors
+      float radius = (float)((double)rand() / (double)(RAND_MAX / (max_radius - min_radius))) + min_radius;
+      float rangle = (float)((double)rand() / (double)(RAND_MAX / ((((i + 1) * incr_angle) - i * incr_angle) * angle_offset))) + i * incr_angle;
+
+      p->vectors[i].x = (float)(cos(rangle) * radius);
+      p->vectors[i].y = (float)(sin(rangle) * radius);
+
+      // set vectors transformed
+      p->points[i].x = (float)(cos(rangle + p->angle) * radius + p->x);
+      p->points[i].y = (float)(sin(rangle + p->angle) * radius + p->y);
    }
 
    return p;

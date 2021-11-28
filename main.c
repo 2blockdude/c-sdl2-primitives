@@ -33,6 +33,8 @@ struct game_window
    float angle;
 
    double delta;
+
+   int seed;
 };
 
 int init_window(game_window *win, char *title, int width, int height)
@@ -72,6 +74,7 @@ int init_window(game_window *win, char *title, int width, int height)
    win->delta = 0;
    win->left_down = 0;
    win->right_down = 0;
+   win->seed = 0;
 
    return 0;
 }
@@ -134,6 +137,10 @@ void handle_events(game_window *win)
                case SDLK_RIGHT:
                   win->right_down = 1;
                   break;
+
+               case SDLK_r:
+                  win->seed = rand();
+                  break;
             };
             break;
 
@@ -160,13 +167,11 @@ void render(game_window *win)
    SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
 
    struct fpolygon *fp;
-   struct polygon *p;
-   fp = create_rfpolygon(win->sides, 350, 350, 100, win->angle);
 
-   p = create_rpolygon(win->sides, 350, 350, 100, win->angle);
+   srand(win->seed);
+   fp = create_fpolygon_rand(win->sides, 350, 350, 50, 10, 100, win->angle);
    draw_fpolygon(win->renderer, fp);
    draw_fpolygon_filled(win->renderer, fp);
-   free_polygon(p);
 
    fpolygon_translate(fp, 100, 100);
    draw_fpolygon(win->renderer, fp);
@@ -195,6 +200,7 @@ int main()
    int code = init_window(&win, "primitives", SCREEN_WIDTH, SCREEN_HEIGHT);
    if (code != 0) return -1;
 
+   unsigned int start, end;
    while (win.running)
    {
 
@@ -204,7 +210,6 @@ int main()
       if (win.right_down)
          win.angle += 5.0f * win.delta;
 
-      unsigned int start, end;
 
       start = SDL_GetTicks();
 
