@@ -54,9 +54,6 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
       min_y = p->points[i].y < min_y ? p->points[i].y : min_y;
    }
 
-   //int y;
-   //SDL_GetMouseState(NULL, &y);
-
    for (int y = min_y; y <= max_y; y++)
    {
       int nint = 0;
@@ -140,21 +137,8 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
       qsort(nodes_x, nint, sizeof(int), polycmp);
 
       if (nint % 2 == 0)
-      {
          for (int k = 0; k < nint; k += 2)
-         {
             SDL_RenderDrawLine(renderer, nodes_x[k], y, nodes_x[k + 1], y);
-
-            //struct polygon *p;
-            //p = create_reg_polygon(50, nodes_x[k], y, 10, 0, 1, 1);
-            //draw_polygon(renderer, p);
-            //free_polygon(p);
-
-            //p = create_reg_polygon(50, nodes_x[k + 1], y, 10, 0, 1, 1);
-            //draw_polygon(renderer, p);
-            //free_polygon(p);
-         }
-      }
    }
 
    return 0;
