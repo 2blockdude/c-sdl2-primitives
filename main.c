@@ -140,10 +140,13 @@ void render(game_window *win)
    SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
 
    struct fpolygon *fp;
-
+   struct polygon *p;
    fp = create_rfpolygon(win->sides, 350, 350, 100, win->angle);
-   draw_fpolygon(win->renderer, fp);
-   draw_fpolygon_filled(win->renderer, fp);
+
+   p = create_rpolygon(win->sides, 350, 350, 100, win->angle);
+   draw_polygon(win->renderer, p);
+   draw_polygon_filled(win->renderer, p);
+   free_polygon(p);
 
    fpolygon_translate(fp, 100, 100);
    draw_fpolygon(win->renderer, fp);
@@ -177,7 +180,7 @@ int main()
       handle_events(&win);
       if (!win.pause)
          render(&win);
-      win.angle += 0.03f;
+      //win.angle += 0.03f;
       SDL_Delay(10);
    }
 

@@ -30,6 +30,12 @@ int draw_polygon(SDL_Renderer *renderer, const struct polygon *p)
    return 0;
 }
 
+// compare function for qsort
+int polycmp(const void *a, const void *b)
+{
+   return *(int *)a - *(int *)b;
+}
+
 // fill in polygon with lines
 int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
 {
@@ -90,25 +96,8 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
          }
          if ( ((y >= y1) && (y < y2)) || ((y == max_y) && (y > y1) && (y <= y2)) )
          {
-            //nodes_x[nint++] = ((65536 * (y - y1)) / (y2 - y1)) * (x2 - x1) + (65536 * x1);
-
-            float x_int, y_int;
-            float slope;
-            int rise, run;
-            if (x1 == x2)
-            {
-               x_int = x1;
-            }
-            else
-            {
-               rise = y2 - y1;
-               run = x2 - x1;
-               slope = (float)rise / (float)run;
-               y_int = (float)y1 - ((float)slope * (float)x1);
-               x_int = ((float)y - (float)y_int) / (float)slope;
-            }
-
-            nodes_x[nint++] = x_int;
+            // modified point slope form to isolate x. note everything needs to be a float for this to work
+            nodes_x[nint++] = (float)(y - y1) * ((float)(x2 - x1) / (float)(y2 - y1)) + (float)x1;
          }
 
       }
@@ -148,24 +137,7 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
       //	j = i;
       //}
 
-      //  Sort the nodes.
-      int i = 0;
-      while (i < nint - 1)
-      {
-         if (nodes_x[i] > nodes_x[i + 1])
-         {
-            int swap;
-            swap = nodes_x[i];
-            nodes_x[i] = nodes_x[i + 1];
-            nodes_x[i + 1] = swap;
-            if (i)
-               i--;
-         }
-         else
-         {
-            i++;
-         }
-      }
+      qsort(nodes_x, nint, sizeof(int), polycmp);
 
       if (nint % 2 == 0)
       {
@@ -371,6 +343,12 @@ int draw_fpolygon(SDL_Renderer *renderer, const struct fpolygon *p)
    return 0;
 }
 
+// compare function for qsort
+int fpolycmp(const void *a, const void *b)
+{
+   return *(float *)a - *(float *)b;
+}
+
 int draw_fpolygon_filled(SDL_Renderer *renderer, const struct fpolygon *p)
 {
    if (renderer == NULL)
@@ -430,45 +408,12 @@ int draw_fpolygon_filled(SDL_Renderer *renderer, const struct fpolygon *p)
          }
          if ( ((y >= y1) && (y < y2)) || ((y == max_y) && (y > y1) && (y <= y2)) )
          {
-            float x_int, y_int;
-            float slope;
-            float rise, run;
-            if (x1 == x2)
-            {
-               x_int = x1;
-            }
-            else
-            {
-               rise = y2 - y1;
-               run = x2 - x1;
-               slope = (float)rise / (float)run;
-               y_int = (float)y1 - ((float)slope * (float)x1);
-               x_int = ((float)y - (float)y_int) / (float)slope;
-            }
-
-            nodes_x[nint++] = x_int;
+            nodes_x[nint++] = (y - y1) * ((x2 - x1) / (y2 - y1)) + x1;
          }
 
       }
 
-      //  Sort the nodes.
-      int i = 0;
-      while (i < nint - 1)
-      {
-         if (nodes_x[i] > nodes_x[i + 1])
-         {
-            int swap;
-            swap = nodes_x[i];
-            nodes_x[i] = nodes_x[i + 1];
-            nodes_x[i + 1] = swap;
-            if (i)
-               i--;
-         }
-         else
-         {
-            i++;
-         }
-      }
+      qsort(nodes_x, nint, sizeof(float), fpolycmp);
 
       if (nint % 2 == 0)
          for (int k = 0; k < nint; k += 2)
