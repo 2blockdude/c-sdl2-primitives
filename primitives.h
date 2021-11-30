@@ -18,7 +18,7 @@ struct polygon
 
    int nsides;
    float *vectors;
-   float *points;
+   float *vertices;
 
    struct { float x, y; } scale;
 };
@@ -38,8 +38,8 @@ int draw_polygon_filled					   (SDL_Renderer *renderer, const struct polygon *p)
 
 // build float polygons
 struct polygon *create_polygon			(float *input_vectors, int nsides, float x, float y, float angle);
-struct polygon *create_reg_polygon	   (int nsides, float x, float y, float radius, float angle);
-struct polygon *create_rand_polygon	   (int nsides, float x, float y, float max_radius, float min_radius, float angle_offset, float angle);
+struct polygon *create_reg_polygon	   (int nsides, float x, float y, float angle, float radius);
+struct polygon *create_rand_polygon	   (int nsides, float x, float y, float angle, float max_radius, float min_radius, float angle_offset);
 
 // transform float polygon
 int polygon_rebuild							(struct polygon *p);

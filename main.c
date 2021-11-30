@@ -170,7 +170,7 @@ void render(game_window *win)
    polygon *fp;
 
    srand(win->seed);
-   fp = create_reg_polygon(win->sides, 350, 350, 100, win->angle);
+   fp = create_reg_polygon(win->sides, 350, 350, win->angle, 100);
    draw_polygon(win->renderer, fp);
    draw_polygon_filled(win->renderer, fp);
 
