@@ -1,6 +1,7 @@
 #include <math.h>
 #include <SDL2/SDL.h>
 #include "primitives.h"
+#include <time.h>
 
 #define SCREEN_WIDTH		700
 #define SCREEN_HEIGHT	700
@@ -139,7 +140,7 @@ void handle_events(game_window *win)
                   break;
 
                case SDLK_r:
-                  win->seed = rand();
+                  win->seed = clock();
                   break;
             };
             break;
@@ -166,29 +167,30 @@ void render(game_window *win)
 
    SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
 
-   struct fpolygon *fp;
+   struct polygon *fp;
 
    srand(win->seed);
-   fp = create_rand_fpolygon(win->sides, 350, 350, 100, 50, 1, win->angle);
-   draw_fpolygon(win->renderer, fp);
-   draw_fpolygon_filled(win->renderer, fp);
+   fp = create_reg_polygon(win->sides, 350, 350, 100, win->angle);
+   draw_polygon(win->renderer, fp);
+   draw_polygon_filled(win->renderer, fp);
 
-   fpolygon_translate(fp, 100, 100);
-   draw_fpolygon(win->renderer, fp);
-   draw_fpolygon_filled(win->renderer, fp);
+   polygon_translate(fp, 100, 100);
+   draw_polygon(win->renderer, fp);
+   draw_polygon_filled(win->renderer, fp);
 
-   fpolygon_translate(fp, 600, 100);
-   draw_fpolygon(win->renderer, fp);
-   draw_fpolygon_filled(win->renderer, fp);
+   polygon_translate(fp, 600, 100);
+   draw_polygon(win->renderer, fp);
+   draw_polygon_filled(win->renderer, fp);
 
-   fpolygon_translate(fp, 600, 600);
-   draw_fpolygon(win->renderer, fp);
-   draw_fpolygon_filled(win->renderer, fp);
+   polygon_translate(fp, 600, 600);
+   draw_polygon(win->renderer, fp);
+   draw_polygon_filled(win->renderer, fp);
 
-   fpolygon_translate(fp, 100, 600);
-   draw_fpolygon(win->renderer, fp);
-   draw_fpolygon_filled(win->renderer, fp);
-   free_fpolygon(fp);
+   polygon_translate(fp, 100, 600);
+   draw_polygon(win->renderer, fp);
+   draw_polygon_filled(win->renderer, fp);
+
+   free_polygon(fp);
 
    SDL_SetRenderDrawColor(win->renderer, 255, 255, 255, 255);
    SDL_RenderPresent(win->renderer);
