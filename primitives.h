@@ -8,20 +8,27 @@
 
 #include <SDL2/SDL.h>
 
+typedef struct polygon polygon;
+typedef struct ellipse ellipse;
+
 struct polygon
 {
    float x, y;
-   int nsides;
    float angle;
-   struct { float x, y; } scale;
+
+   int nsides;
+
    float *vectors;
    float *points;
+
+   struct { float x, y; } scale;
 };
 
 struct ellipse
 {
    float x, y;
    float angle;
+
    struct { float x, y; } scale;
    struct { float x, y; } radius;
 };
