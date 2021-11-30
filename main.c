@@ -167,7 +167,7 @@ void render(game_window *win)
 
    SDL_SetRenderDrawColor(win->renderer, 0, 0, 0, 255);
 
-   struct polygon *fp;
+   polygon *fp;
 
    srand(win->seed);
    fp = create_reg_polygon(win->sides, 350, 350, 100, win->angle);

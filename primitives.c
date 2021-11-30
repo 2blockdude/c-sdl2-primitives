@@ -3,6 +3,13 @@
 
 #define PI 3.1415926535897932384626433832795
 
+// simple struct for casting
+struct point
+{
+   float x;
+   float y;
+};
+
 int draw_polygon(SDL_Renderer *renderer, const struct polygon *p)
 {
    if (renderer == NULL)
@@ -34,7 +41,7 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
    if (p == NULL)
       return -1;
 
-   SDL_FPoint *points = (SDL_FPoint *)p->points;
+   struct point *points = (struct point *)p->points;
 
    float max_y = points[0].y;
    float min_y = points[0].y;
@@ -46,7 +53,7 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
    }
 
    int nint;
-   float nodes_x[p->nsides];
+   float *nodes_x = (float *)malloc(sizeof(float) * p->nsides);
 
    for (int y = min_y; y <= max_y; y++)
    {
@@ -98,6 +105,8 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
             SDL_RenderDrawLineF(renderer, nodes_x[k], y, nodes_x[k + 1], y);
    }
 
+   free(nodes_x);
+
    return 0;
 }
 
@@ -121,18 +130,18 @@ struct polygon *create_polygon(float *input_vectors, int nsides, float x, float 
    p->vectors = (float *)malloc(sizeof(float) * nsides * 2);
    p->points = (float *)malloc(sizeof(float) * nsides * 2);
 
-   SDL_FPoint *vectors = (SDL_FPoint *)p->vectors;
-   SDL_FPoint *points = (SDL_FPoint *)p->points;
+   struct point *vectors = (struct point *)p->vectors;
+   struct point *points = (struct point *)p->points;
 
    for (int i = 0; i < p->nsides; i++)
    {
       // set vectors
-      vectors[i].x = input_vectors[i * 2];
-      vectors[i].y = input_vectors[i * 2 + 1];
+      vectors[i].x = ((struct point *)input_vectors)[i].x;
+      vectors[i].y = ((struct point *)input_vectors)[i].y;
 
       // set points with angle and scale applied
-      points[i].x = (float)(p->x + (p->scale.x * vectors[i].x * cos(p->angle)) - (p->scale.x * vectors[i].x * sin(p->angle)));
-      points[i].y = (float)(p->y + (p->scale.y * vectors[i].y * sin(p->angle)) + (p->scale.y * vectors[i].y * cos(p->angle)));
+      points[i].x = (float)(p->x + p->scale.x * ((vectors[i].x * cos(p->angle)) - (vectors[i].y * sin(p->angle))));
+      points[i].y = (float)(p->y + p->scale.y * ((vectors[i].x * sin(p->angle)) + (vectors[i].y * cos(p->angle))));
    }
 
    return p;
@@ -143,35 +152,19 @@ struct polygon *create_reg_polygon(int nsides, float x, float y, float radius, f
    if (nsides < 3)
       return NULL;
 
-   struct polygon *p = (struct polygon *)malloc(sizeof(struct polygon));
+   float *vectors = (float *)malloc(sizeof(float) * nsides * 2);
 
-   // copy stuff
-   p->x = x;
-   p->y = y;
-   p->angle = angle;
-   p->scale.x = 1;
-   p->scale.y = 1;
-   p->nsides = nsides;
-   p->vectors = (float *)malloc(sizeof(float) * nsides * 2);
-   p->points  = (float *)malloc(sizeof(float) * nsides * 2);
-
-   SDL_FPoint *vectors = (SDL_FPoint *)p->vectors;
-   SDL_FPoint *points = (SDL_FPoint *)p->points;
-
-   // i am retarded
    float incr_angle = 2.0f * PI / nsides;
 
-   for (int i = 0; i < p->nsides; i++)
+   for (int i = 0; i < nsides; i++)
    {
       // set vectors
-      vectors[i].x = (float)(cos(i * incr_angle) * radius);
-      vectors[i].y = (float)(sin(i * incr_angle) * radius);
-
-      // set vectors transformed
-      points[i].x = (float)(p->x + (p->scale.x * vectors[i].x * cos(p->angle)) - (p->scale.x * vectors[i].y * sin(p->angle)));
-      points[i].y = (float)(p->y + (p->scale.y * vectors[i].x * sin(p->angle)) + (p->scale.y * vectors[i].y * cos(p->angle)));
+      ((struct point *)vectors)[i].x = (float)(cos(i * incr_angle) * radius);
+      ((struct point *)vectors)[i].y = (float)(sin(i * incr_angle) * radius);
    }
 
+   struct polygon *p = create_polygon(vectors, nsides, x, y, angle);
+   free(vectors);
    return p;
 }
 
@@ -180,39 +173,55 @@ struct polygon *create_rand_polygon(int nsides, float x, float y, float max_radi
    if (nsides < 3)
       return NULL;
 
-   struct polygon *p = (struct polygon *)malloc(sizeof(struct polygon));
+   float *vectors = (float *)malloc(sizeof(float) * nsides * 2);
 
-   // copy stuff
-   p->x = x;
-   p->y = y;
-   p->angle = angle;
-   p->scale.x = 1;
-   p->scale.y = 1;
-   p->nsides = nsides;
-   p->vectors = (float *)malloc(sizeof(float) * nsides * 2);
-   p->points =  (float *)malloc(sizeof(float) * nsides * 2);
-
-   SDL_FPoint *vectors = (SDL_FPoint *)p->vectors;
-   SDL_FPoint *points = (SDL_FPoint *)p->points;
-
-   // i am retarded
    float incr_angle = 2.0f * PI / nsides;
+
+   for (int i = 0; i < nsides; i++)
+   {
+      // set vectors
+      float rand_radius = (float)((double)rand() * (double)((max_radius - min_radius) / RAND_MAX)) + min_radius;
+      float rand_angle = (float)((double)rand() * (double)(((((i + 1) * incr_angle) - i * incr_angle) * angle_offset) / RAND_MAX)) + i * incr_angle;
+
+      ((struct point *)vectors)[i].x = (float)(cos(rand_angle) * rand_radius);
+      ((struct point *)vectors)[i].y = (float)(sin(rand_angle) * rand_radius);
+   }
+
+   struct polygon *p = create_polygon(vectors, nsides, x, y, angle);
+   free(vectors);
+   return p;
+}
+
+// rebuild floating point polygon
+int polygon_rebuild(struct polygon *p)
+{
+   if (p == NULL)
+      return -1;
+
+   struct point *vectors = (struct point *)p->vectors;
+   struct point *points = (struct point *)p->points;
+
+   /*
+    * 2d rotation matrix
+    * 
+    * R = {cos(theta), -sin(theta)}
+    *		 {sin(theta),  cos(theta)}
+    */
+
+   /*
+    * 2d scaling matrix
+    *
+    * S = { Sx, 0 }
+    *		 { 0, Sy }
+    */
 
    for (int i = 0; i < p->nsides; i++)
    {
-      // set vectors
-      float radius = (float)((double)rand() * (double)((max_radius - min_radius) / RAND_MAX)) + min_radius;
-      float rangle = (float)((double)rand() * (double)(((((i + 1) * incr_angle) - i * incr_angle) * angle_offset) / RAND_MAX)) + i * incr_angle;
-
-      vectors[i].x = (float)(cos(rangle) * radius);
-      vectors[i].y = (float)(sin(rangle) * radius);
-
-      // set vectors transformed
-      points[i].x = (float)(cos(rangle + p->angle) * radius + p->x);
-      points[i].y = (float)(sin(rangle + p->angle) * radius + p->y);
+      points[i].x = (float)(p->x + p->scale.x * ((vectors[i].x * cos(p->angle)) - (vectors[i].y * sin(p->angle))));
+      points[i].y = (float)(p->y + p->scale.y * ((vectors[i].x * sin(p->angle)) + (vectors[i].y * cos(p->angle))));
    }
 
-   return p;
+   return 0;
 }
 
 int polygon_translate(struct polygon *p, float x, float y)
@@ -220,7 +229,7 @@ int polygon_translate(struct polygon *p, float x, float y)
    if (p == NULL)
       return -1;
 
-   SDL_FPoint *points = (SDL_FPoint *)p->points;
+   struct point *points = (struct point *)p->points;
 
    for (int i = 0; i < p->nsides; i++)
    {
@@ -240,23 +249,9 @@ int polygon_set_angle(struct polygon *p, float angle)
    if (p == NULL)
       return -1;
 
-   SDL_FPoint *vectors = (SDL_FPoint *)p->vectors;
-   SDL_FPoint *points = (SDL_FPoint *)p->points;
-
    p->angle = angle;
 
-   /*
-    * 2d rotation matrix
-    * 
-    * R = {cos(theta), -sin(theta)}
-    *		 {sin(theta),  cos(theta)}
-    */
-
-   for (int i = 0; i < p->nsides; i++)
-   {
-      points[i].x = (float)(p->x + (p->scale.x * vectors[i].x * cos(p->angle)) - (p->scale.x * vectors[i].y * sin(p->angle)));
-      points[i].y = (float)(p->y + (p->scale.y * vectors[i].x * sin(p->angle)) + (p->scale.y * vectors[i].y * cos(p->angle)));
-   }
+   polygon_rebuild(p);
 
    return 0;
 }
@@ -266,14 +261,7 @@ int polygon_set_scale(struct polygon *p, float scale_x, float scale_y)
    if (p == NULL)
       return -1;
 
-   /*
-    * 2d scaling matrix
-    *
-    * S = { Sx, 0 }
-    *		 { 0, Sy }
-    */
-
-   SDL_FPoint *points = (SDL_FPoint *)p->points;
+   struct point *points = (struct point *)p->points;
 
    for (int i = 0; i < p->nsides; i++)
    {
@@ -283,24 +271,6 @@ int polygon_set_scale(struct polygon *p, float scale_x, float scale_y)
 
    p->scale.x = scale_x;
    p->scale.y = scale_y;
-
-   return 0;
-}
-
-// rebuild floating point polygon
-int polygon_rebuild(struct polygon *p)
-{
-   if (p == NULL)
-      return -1;
-
-   SDL_FPoint *vectors = (SDL_FPoint *)p->vectors;
-   SDL_FPoint *points = (SDL_FPoint *)p->points;
-
-   for (int i = 0; i < p->nsides; i++)
-   {
-      points[i].x = (float)(p->x + (p->scale.x * vectors[i].x * cos(p->angle)) - (p->scale.x * vectors[i].y * sin(p->angle)));
-      points[i].y = (float)(p->y + (p->scale.y * vectors[i].x * sin(p->angle)) + (p->scale.y * vectors[i].y * cos(p->angle)));
-   }
 
    return 0;
 }

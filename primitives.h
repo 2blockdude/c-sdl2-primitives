@@ -17,7 +17,6 @@ struct polygon
    float angle;
 
    int nsides;
-
    float *vectors;
    float *points;
 
@@ -43,10 +42,10 @@ struct polygon *create_reg_polygon	   (int nsides, float x, float y, float radiu
 struct polygon *create_rand_polygon	   (int nsides, float x, float y, float max_radius, float min_radius, float angle_offset, float angle);
 
 // transform float polygon
+int polygon_rebuild							(struct polygon *p);
 int polygon_translate						(struct polygon *p, float x, float y);
 int polygon_set_angle						(struct polygon *p, float angle);
 int polygon_set_scale						(struct polygon *p, float scale_x, float scale_y);
-int polygon_rebuild							(struct polygon *p);
 
 // free float polygon
 void free_polygon							   (struct polygon *p);
