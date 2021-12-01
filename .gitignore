@@ -7,8 +7,11 @@
 # Unignore all directories
 !*/*
 
-# Unignore Makefile
-!Makefile
+# Ignore test files
+*.test.c
+
+# Ignore lib
+test-lib/*
 
 # Prerequisites
 *.d

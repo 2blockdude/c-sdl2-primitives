@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -g -Wall -Wextra -std=c99
 LIBS = -lm -lSDL2
-MAIN = main
+MAIN = main.test
 SRC = primitives
 OBJ = $(MAIN:%=%.o) $(SRC:%=%.o)
 DEPS = $(SRC:%=%.h)
