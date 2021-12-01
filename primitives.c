@@ -18,12 +18,12 @@ int draw_polygon(SDL_Renderer *renderer, const struct polygon *p)
    if (p == NULL)
       return -1;
 
-   SDL_FPoint *vertices = (SDL_FPoint *)p->vertices;
+   SDL_FPoint *points = (SDL_FPoint *)p->points;
 
-   SDL_RenderDrawLinesF(renderer, vertices, p->nsides);
+   SDL_RenderDrawLinesF(renderer, points, p->nsides);
    SDL_RenderDrawLineF(renderer,
-         vertices[0].x, vertices[0].y,
-         vertices[p->nsides - 1].x, vertices[p->nsides - 1].y);
+         points[0].x, points[0].y,
+         points[p->nsides - 1].x, points[p->nsides - 1].y);
 
    return 0;
 }
@@ -41,15 +41,15 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
    if (p == NULL)
       return -1;
 
-   struct point *vertices = (struct point *)p->vertices;
+   struct point *points = (struct point *)p->points;
 
-   float max_y = vertices[0].y;
-   float min_y = vertices[0].y;
+   float max_y = points[0].y;
+   float min_y = points[0].y;
 
    for (int i = 0; i < p->nsides; i ++)
    {
-      max_y = vertices[i].y > max_y ? vertices[i].y : max_y;
-      min_y = vertices[i].y < min_y ? vertices[i].y : min_y;
+      max_y = points[i].y > max_y ? points[i].y : max_y;
+      min_y = points[i].y < min_y ? points[i].y : min_y;
    }
 
    int nint;
@@ -78,16 +78,16 @@ int draw_polygon_filled(SDL_Renderer *renderer, const struct polygon *p)
             ind2 = i;
          }
 
-         y1 = vertices[ind1].y;
-         y2 = vertices[ind2].y;
+         y1 = points[ind1].y;
+         y2 = points[ind2].y;
          if (y1 < y2) {
-            x1 = vertices[ind1].x;
-            x2 = vertices[ind2].x;
+            x1 = points[ind1].x;
+            x2 = points[ind2].x;
          } else if (y1 > y2) {
-            y2 = vertices[ind1].y;
-            y1 = vertices[ind2].y;
-            x2 = vertices[ind1].x;
-            x1 = vertices[ind2].x;
+            y2 = points[ind1].y;
+            y1 = points[ind2].y;
+            x2 = points[ind1].x;
+            x1 = points[ind2].x;
          } else {
             continue;
          }
@@ -128,10 +128,10 @@ struct polygon *create_polygon(float *input_vectors, int nsides, float x, float 
    p->scale.y = 1;
    p->nsides = nsides;
    p->vectors = (float *)malloc(sizeof(float) * nsides * 2);
-   p->vertices = (float *)malloc(sizeof(float) * nsides * 2);
+   p->points = (float *)malloc(sizeof(float) * nsides * 2);
 
    struct point *vectors = (struct point *)p->vectors;
-   struct point *vertices = (struct point *)p->vertices;
+   struct point *points = (struct point *)p->points;
 
    for (int i = 0; i < p->nsides; i++)
    {
@@ -139,9 +139,9 @@ struct polygon *create_polygon(float *input_vectors, int nsides, float x, float 
       vectors[i].x = ((struct point *)input_vectors)[i].x;
       vectors[i].y = ((struct point *)input_vectors)[i].y;
 
-      // set vertices with angle and scale applied
-      vertices[i].x = (float)(p->x + p->scale.x * ((vectors[i].x * cos(p->angle)) - (vectors[i].y * sin(p->angle))));
-      vertices[i].y = (float)(p->y + p->scale.y * ((vectors[i].x * sin(p->angle)) + (vectors[i].y * cos(p->angle))));
+      // set points with angle and scale applied
+      points[i].x = (float)(p->x + p->scale.x * ((vectors[i].x * cos(p->angle)) - (vectors[i].y * sin(p->angle))));
+      points[i].y = (float)(p->y + p->scale.y * ((vectors[i].x * sin(p->angle)) + (vectors[i].y * cos(p->angle))));
    }
 
    return p;
@@ -192,6 +192,18 @@ struct polygon *create_rand_polygon(int nsides, float x, float y, float angle, f
    return p;
 }
 
+struct polygon *create_copy_polygon(struct polygon *p)
+{
+   if (p == NULL)
+      return NULL;
+
+   struct polygon *p_copy = create_polygon(p->vectors, p->nsides, p->x, p->y, p->angle);
+   p_copy->scale.x = p->scale.x;
+   p_copy->scale.y = p->scale.y;
+
+   return p_copy;
+}
+
 // rebuild floating point polygon
 int polygon_rebuild(struct polygon *p)
 {
@@ -199,7 +211,7 @@ int polygon_rebuild(struct polygon *p)
       return -1;
 
    struct point *vectors = (struct point *)p->vectors;
-   struct point *vertices = (struct point *)p->vertices;
+   struct point *points = (struct point *)p->points;
 
    /*
     * 2d rotation matrix
@@ -217,8 +229,8 @@ int polygon_rebuild(struct polygon *p)
 
    for (int i = 0; i < p->nsides; i++)
    {
-      vertices[i].x = (float)(p->x + p->scale.x * ((vectors[i].x * cos(p->angle)) - (vectors[i].y * sin(p->angle))));
-      vertices[i].y = (float)(p->y + p->scale.y * ((vectors[i].x * sin(p->angle)) + (vectors[i].y * cos(p->angle))));
+      points[i].x = (float)(p->x + p->scale.x * ((vectors[i].x * cos(p->angle)) - (vectors[i].y * sin(p->angle))));
+      points[i].y = (float)(p->y + p->scale.y * ((vectors[i].x * sin(p->angle)) + (vectors[i].y * cos(p->angle))));
    }
 
    return 0;
@@ -229,12 +241,12 @@ int polygon_translate(struct polygon *p, float x, float y)
    if (p == NULL)
       return -1;
 
-   struct point *vertices = (struct point *)p->vertices;
+   struct point *points = (struct point *)p->points;
 
    for (int i = 0; i < p->nsides; i++)
    {
-      vertices[i].x = vertices[i].x - p->x + x;
-      vertices[i].y = vertices[i].y - p->y + y;
+      points[i].x = points[i].x - p->x + x;
+      points[i].y = points[i].y - p->y + y;
    }
 
    // store new position
@@ -261,12 +273,12 @@ int polygon_set_scale(struct polygon *p, float scale_x, float scale_y)
    if (p == NULL)
       return -1;
 
-   struct point *vertices = (struct point *)p->vertices;
+   struct point *points = (struct point *)p->points;
 
    for (int i = 0; i < p->nsides; i++)
    {
-      vertices[i].x = (vertices[i].x - p->x) / p->scale.x * scale_x + p->x;
-      vertices[i].y = (vertices[i].y - p->y) / p->scale.y * scale_y + p->y;
+      points[i].x = (points[i].x - p->x) / p->scale.x * scale_x + p->x;
+      points[i].y = (points[i].y - p->y) / p->scale.y * scale_y + p->y;
    }
 
    p->scale.x = scale_x;
@@ -278,6 +290,6 @@ int polygon_set_scale(struct polygon *p, float scale_x, float scale_y)
 void free_polygon(struct polygon *p)
 {
    free(p->vectors);
-   free(p->vertices);
+   free(p->points);
    free(p);
 }
