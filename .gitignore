@@ -9,6 +9,7 @@
 
 # Ignore test files
 *.test.c
+*.test
 
 # Ignore lib
 test-lib/*
