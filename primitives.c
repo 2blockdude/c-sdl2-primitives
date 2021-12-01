@@ -28,7 +28,7 @@ int draw_polygon(SDL_Renderer *renderer, const struct polygon *p)
    return 0;
 }
 
-int fpolycmp(const void *a, const void *b)
+static int fpolycmp(const void *a, const void *b)
 {
    return *(float *)a - *(float *)b;
 }
