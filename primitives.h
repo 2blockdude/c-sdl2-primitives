@@ -44,7 +44,12 @@ struct polygon *create_copy_polygon    (struct polygon *p);
 
 // transform float polygon
 int polygon_rebuild							(struct polygon *p);
+
 int polygon_translate						(struct polygon *p, float x, float y);
+int polygon_rotate                     (struct polygon *p, float angle);
+int polygon_scale                      (struct polygon *p, float scale_x, float scale_y);
+
+int polygon_set_pos                    (struct polygon *p, float x, float y);
 int polygon_set_angle						(struct polygon *p, float angle);
 int polygon_set_scale						(struct polygon *p, float scale_x, float scale_y);
 

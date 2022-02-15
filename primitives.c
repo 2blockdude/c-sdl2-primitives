@@ -245,8 +245,71 @@ int polygon_translate(struct polygon *p, float x, float y)
 
    for (int i = 0; i < p->nsides; i++)
    {
-      points[i].x = points[i].x - p->x + x;
-      points[i].y = points[i].y - p->y + y;
+      points[i].x += x;
+      points[i].y += y;
+   }
+
+   // set new position
+   p->x += x;
+   p->y += y;
+
+   return 0;
+}
+
+int polygon_rotate(struct polygon *p, float angle)
+{
+   if (p == NULL)
+      return -1;
+
+   p->angle += angle;
+
+   //struct point *vectors = (struct point *)p->vectors;
+   struct point *points = (struct point *)p->points;
+
+   for (int i = 0; i < p->nsides; i++)
+   {
+      // 4 additions 2 multiplications
+      points[i].x = (p->x + (((points[i].x - p->x) * cos(angle)) - ((points[i].y - p->y) * sin(angle))));
+      points[i].y = (p->y + (((points[i].x - p->x) * sin(angle)) + ((points[i].y - p->y) * cos(angle))));
+
+      // 2 additions 3 multiplications
+      //points[i].x = (p->x + p->scale.x * ((vectors[i].x * cos(p->angle)) - (vectors[i].y * sin(p->angle))));
+      //points[i].y = (p->y + p->scale.y * ((vectors[i].x * sin(p->angle)) + (vectors[i].y * cos(p->angle))));
+   }
+
+   return 0;
+}
+
+int polygon_scale(struct polygon *p, float scale_x, float scale_y)
+{
+   if (p == NULL)
+      return -1;
+
+   struct point *points = (struct point *)p->points;
+
+   p->scale.x += scale_x;
+   p->scale.y += scale_y;
+   
+   for (int i = 0; i < p->nsides; i++)
+   {
+      points[i].x = (points[i].x - p->x) * scale_x + p->x;
+      points[i].y = (points[i].y - p->y) * scale_y + p->y;
+   }
+
+   return 0;
+}
+
+int polygon_set_pos(struct polygon *p, float x, float y)
+{
+   if (p == NULL)
+      return -1;
+
+   struct point *points = (struct point *)p->points;
+
+   for (int i = 0; i < p->nsides; i++)
+   {
+      points[i].x = (points[i].x - p->x) + x;
+      points[i].y = (points[i].y - p->y) + y;
    }
 
    // store new position
@@ -273,16 +336,10 @@ int polygon_set_scale(struct polygon *p, float scale_x, float scale_y)
    if (p == NULL)
       return -1;
 
-   struct point *points = (struct point *)p->points;
-
-   for (int i = 0; i < p->nsides; i++)
-   {
-      points[i].x = (points[i].x - p->x) / p->scale.x * scale_x + p->x;
-      points[i].y = (points[i].y - p->y) / p->scale.y * scale_y + p->y;
-   }
-
    p->scale.x = scale_x;
    p->scale.y = scale_y;
+
+   polygon_rebuild(p);
 
    return 0;
 }
