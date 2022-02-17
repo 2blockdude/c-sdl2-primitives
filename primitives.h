@@ -8,19 +8,32 @@
 
 #include <SDL2/SDL.h>
 
+typedef struct point point;
 typedef struct polygon polygon;
 typedef struct ellipse ellipse;
 
+struct point
+{
+   float x;
+   float y;
+};
+
 struct polygon
 {
-   float x, y;
+   // general info
+   struct point position;
+   struct point scale;
    float angle;
 
-   int nsides;
-   float *vectors;
-   float *points;
+   // shape and world cords
+   struct point *vectors;
+   struct point *points;
 
-   struct { float x, y; } scale;
+   // util info
+   int nsides;
+   float radius;
+   struct point far;
+   struct point centroid;
 };
 
 struct ellipse
