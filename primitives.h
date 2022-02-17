@@ -13,45 +13,45 @@ typedef struct ellipse ellipse;
 
 struct point
 {
-   float x;
-   float y;
+    float x;
+    float y;
 };
 
 struct rectangle
 {
-   struct point position;
-   struct point scale;
-   float angle;
+    struct point position;
+    struct point scale;
+    float angle;
 
-   float width;
-   float height;
+    float width;
+    float height;
 };
 
 struct polygon
 {
-   // general info
-   struct point position;
-   struct point scale;
-   float angle;
+    // general info
+    struct point position;
+    struct point scale;
+    float angle;
 
-   // shape and world cords
-   struct point *vectors;
-   struct point *points;
+    // shape and world cords
+    struct point *vectors;
+    struct point *points;
 
-   // util info
-   int nsides;
-   float radius;
-   struct point far;
-   struct point centroid;
+    // util info
+    int nsides;
+    float radius;
+    struct point far;
+    struct point centroid;
 };
 
 struct ellipse
 {
-   float x, y;
-   float angle;
+    float x, y;
+    float angle;
 
-   struct { float x, y; } scale;
-   struct { float x, y; } radius;
+    struct { float x, y; } scale;
+    struct { float x, y; } radius;
 };
 
 // build float polygons
