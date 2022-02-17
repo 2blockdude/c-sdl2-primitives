@@ -6,9 +6,8 @@
 #ifndef MY_COOL_PRIMITIVES
 #define MY_COOL_PRIMITIVES
 
-#include <SDL2/SDL.h>
-
 typedef struct point point;
+typedef struct rectangle rectangle;
 typedef struct polygon polygon;
 typedef struct ellipse ellipse;
 
@@ -16,6 +15,16 @@ struct point
 {
    float x;
    float y;
+};
+
+struct rectangle
+{
+   struct point position;
+   struct point scale;
+   float angle;
+
+   float width;
+   float height;
 };
 
 struct polygon
@@ -44,10 +53,6 @@ struct ellipse
    struct { float x, y; } scale;
    struct { float x, y; } radius;
 };
-
-// float polygons
-int draw_polygon								(SDL_Renderer *renderer, const struct polygon *p);
-int draw_polygon_filled					   (SDL_Renderer *renderer, const struct polygon *p);
 
 // build float polygons
 struct polygon *create_polygon			(float *input_vectors, int nsides, float x, float y, float angle);
